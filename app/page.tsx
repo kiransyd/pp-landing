@@ -17,9 +17,14 @@ export default function Home() {
                         <h1 className="text-balance text-3xl font-bold sm:text-4xl">Shadcn Marketing Blocks</h1>
                         <p className="mb-6 mt-3 text-balance text-base">Speed up your workflow with responsive, pre-built UI blocks designed for marketing websites.</p>
 
-                        <Button>
-                            <Link href="/hero-section">Explore blocks</Link>
-                        </Button>
+                        <div className="flex flex-wrap gap-3 justify-center">
+                            <Button>
+                                <Link href="/hero-section">Explore blocks</Link>
+                            </Button>
+                            <Button variant="outline">
+                                <Link href="/hsc-math">View HSC Math Example</Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </section>
