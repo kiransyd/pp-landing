@@ -2,6 +2,15 @@
 import { useEffect } from "react"
 import Image from "next/image"
 
+// Declare Tally types for TypeScript
+declare global {
+  interface Window {
+    Tally?: {
+      loadEmbeds: () => void
+    }
+  }
+}
+
 export default function WaitlistPage() {
   useEffect(() => {
     // Check if the Tally script is already present
@@ -25,7 +34,7 @@ export default function WaitlistPage() {
   }, [])
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-white dark:bg-zinc-950">
+    <main className="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-white">
       <Image
         src="/pplogo.png"
         alt="Practice Papers.io Logo"
@@ -34,7 +43,7 @@ export default function WaitlistPage() {
         className="mb-6"
         priority
       />
-      <h1 className="text-4xl font-bold mb-8 text-center">Join the 250+ students already on waitlist</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center text-black">Join the 250+ students already on waitlist</h1>
       <iframe
         data-tally-src="https://tally.so/embed/3yraKW?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
         loading="lazy"

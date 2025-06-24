@@ -48,7 +48,7 @@ export const HeroHeader = () => {
                             </button>
                         </div>
 
-                        <div className="absolute inset-0 m-auto hidden size-fit lg:block">
+                        <div className="absolute inset-0 m-auto hidden size-fit lg:hidden">
                             <ul className="flex gap-8 text-sm">
                                 {menuItems.map((item, index) => (
                                     <li key={index}>
@@ -63,7 +63,7 @@ export const HeroHeader = () => {
                         </div>
 
                         <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
-                            <div className="lg:hidden">
+                            <div className="hidden">
                                 <ul className="space-y-6 text-base">
                                     {menuItems.map((item, index) => (
                                         <li key={index}>
@@ -80,14 +80,6 @@ export const HeroHeader = () => {
                                 <Button
                                     asChild
                                     variant="outline"
-                                    size="sm"
-                                    className={cn(isScrolled && 'lg:hidden')}>
-                                    <Link href="/waitlist">
-                                        <span>Join Waitlist</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
                                     size="sm"
                                     className={cn(isScrolled && 'lg:hidden')}>
                                     <Link href="/waitlist">
