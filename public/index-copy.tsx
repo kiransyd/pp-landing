@@ -107,7 +107,7 @@ export default function HomePage() {
                 <Link
                   href="#browse-papers"
                   className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950">
-                  <span className="text-foreground text-sm">Finally stop stressing about HSC math 😮‍💨</span>
+                  <span className="text-foreground text-sm">HSC Mathematics Excellence</span>
                   <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
 
                   <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
@@ -128,7 +128,7 @@ export default function HomePage() {
                 speedSegment={0.3}
                 as="h1"
                 className="mt-8 text-balance font-geist-sans text-6xl font-extrabold md:text-7xl lg:mt-12 xl:text-[5.25rem]">
-                Stop failing HSC math. Start smashing it instead. 
+                Ace HSC maths with unlimited practice papers 
               </TextEffect>
               
               <TextEffect
@@ -138,7 +138,7 @@ export default function HomePage() {
                 delay={0.5}
                 as="p"
                 className="mx-auto mt-8 max-w-2xl text-balance font-geist-sans text-xl font-medium text-muted-foreground">
-                5,000+ NSW students went from 'I'm gonna fail' to Band 6. Here's exactly how they did it.
+                "Discover how thousands of NSW students went from math anxiety to Band 6 results using our proven system"
               </TextEffect>
 
               <AnimatedGroup
@@ -204,14 +204,14 @@ export default function HomePage() {
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="mx-auto max-w-3xl rounded-lg border bg-card/50 p-6 backdrop-blur-sm">
                     <p className="text-lg font-medium text-card-foreground">
-                      Spending 3 hours studying just to feel even more confused? We get it.
+                      Are you spending hours trying to understand complex mathematical concepts, only to feel more confused?
                     </p>
-                    <p className="mt-2 text-lg text-card-foreground">Literally everyone feels this way.</p>
+                    <p className="mt-2 text-lg text-card-foreground">You're not alone.</p>
                     <p className="mt-4 text-xl font-bold text-primary">
                       83% of HSC students report feeling overwhelmed by the mathematics curriculum.
                     </p>
                     <p className="mt-6 text-lg italic text-card-foreground">
-                      The kids getting Band 6s aren't smarter. They just study differently.
+                      "It's not about studying harder. It's about practicing smarter."
                     </p>
                   </div>
                 </div>
@@ -224,8 +224,8 @@ export default function HomePage() {
         <section id="problem" className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
           <div className="@container mx-auto max-w-5xl px-6">
             <div className="text-center mb-12">
-              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">Why You're Still Struggling (It's Not Your Fault)</h2>
-              <p className="mt-4 font-geist-sans text-lg text-muted-foreground max-w-2xl mx-auto">You're not bad at math. You're just studying it wrong. (And so is literally everyone else.)</p>
+              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">The Problem with Traditional Study Methods</h2>
+              <p className="mt-4 font-geist-sans text-lg text-muted-foreground max-w-2xl mx-auto">Most students struggle with math not because they lack intelligence, but because they're using ineffective study approaches.</p>
             </div>
 
             <div className="relative">
@@ -238,8 +238,8 @@ export default function HomePage() {
                         <X className="w-8 h-8 text-destructive" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Reading notes for 3 hours just to blank out in the exam</h3>
-                        <p className="text-muted-foreground font-geist-sans">You know that feeling when you 'understand' everything at home but your brain goes 404 during the actual test? Yeah, that's this.</p>
+                        <h3 className="text-xl font-geist-sans font-bold mb-2">Reviewing notes endlessly</h3>
+                        <p className="text-muted-foreground font-geist-sans">Passive reading creates an illusion of understanding that evaporates during exams when you need to actively apply concepts.</p>
                       </div>
                     </div>
                     
@@ -252,8 +252,8 @@ export default function HomePage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Watching random YouTube tutorials that won't even be on your exam 🤦‍♀️</h3>
-                        <p className="text-muted-foreground font-geist-sans">Stop watching American math YouTubers teach methods that aren't even in the NSW syllabus. You're literally wasting your time.</p>
+                        <h3 className="text-xl font-geist-sans font-bold mb-2">Watching generic YouTube/TikToktutorials</h3>
+                        <p className="text-muted-foreground font-geist-sans">Content not aligned with the HSC syllabus wastes precious study time on techniques that won't be tested in your exams.</p>
                       </div>
                     </div>
                     
@@ -266,8 +266,8 @@ export default function HomePage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Doing the same easy questions over and over</h3>
-                        <p className="text-muted-foreground font-geist-sans">Getting comfortable with basic questions while avoiding the hard ones? That's why the actual HSC feels like it's written in a different language.</p>
+                        <h3 className="text-xl font-geist-sans font-bold mb-2">Practicing the same types of problems</h3>
+                        <p className="text-muted-foreground font-geist-sans">Repeating familiar questions builds false confidence while leaving you unprepared for the varied challenges in the actual HSC exam.</p>
                       </div>
                     </div>
                     
@@ -280,8 +280,8 @@ export default function HomePage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Using your older sibling's 2019 textbooks</h3>
-                        <p className="text-muted-foreground font-geist-sans">The syllabus changed. Your textbook didn't. Now you're studying stuff that literally won't be tested.</p>
+                        <h3 className="text-xl font-geist-sans font-bold mb-2">Using outdated practice materials</h3>
+                        <p className="text-muted-foreground font-geist-sans">Old resources don't reflect recent syllabus changes or current exam patterns, leaving critical gaps in your preparation.</p>
                       </div>
                     </div>
                   </div>
@@ -291,10 +291,10 @@ export default function HomePage() {
             
             <div className="mx-auto mt-12 max-w-3xl rounded-xl bg-destructive/5 p-6 text-center border border-destructive/20">
               <p className="text-xl font-bold font-geist-sans text-destructive">
-                These methods create a dangerous illusion that SHATTERS during your actual HSC.
+                These methods create a dangerous illusion of comprehension that SHATTERS during exams.
               </p>
               <p className="mt-3 text-muted-foreground font-geist-sans">
-                Real talk: 83% of students who don't hit their target use these exact 'study' methods.
+                83% of students who fail to achieve their target bands rely on these ineffective approaches.
               </p>
             </div>
           </div>
@@ -304,7 +304,7 @@ export default function HomePage() {
         <section className="py-16 md:py-32">
           <div className="mx-auto max-w-6xl px-6">
             <div className="text-center mb-16">
-              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">The 3-Step HSC Math Glow-Up</h2>
+              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">The Proven 3-Step Formula for HSC Math Mastery</h2>
               <p className="mt-4 font-geist-sans text-lg text-muted-foreground max-w-2xl mx-auto">After helping 5,000+ students achieve Band 5 and 6 results, we've developed a system that consistently produces results:</p>
             </div>
 
@@ -323,9 +323,11 @@ export default function HomePage() {
                     <BookOpen className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />
                   </div>
                   
-                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Practice That Actually Counts</h3>
+                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Strategic Practice</h3>
                   
-                  <p className="font-geist-sans text-muted-foreground text-center">No more random worksheets. Only HSC-style questions that show up in the real exam.</p>
+                  <p className="font-geist-sans text-muted-foreground text-center">
+                    Access our curated library of exam-style practice papers designed specifically to target the HSC assessment criteria.
+                  </p>
                   
                   <div className="mt-6 inline-flex items-center text-sm font-medium text-primary">
                     <span>Evidence-based approach</span>
@@ -350,9 +352,11 @@ export default function HomePage() {
                     </svg>
                   </div>
                   
-                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Spot the Patterns, Beat the Exam</h3>
+                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Pattern Recognition</h3>
                   
-                  <p className="font-geist-sans text-muted-foreground text-center">Learn the sneaky tricks HSC loves to repeat. Get good at recognizing them.</p>
+                  <p className="font-geist-sans text-muted-foreground text-center">
+                    Train your brain to identify question patterns through our specialized problem sets – the secret technique used by math competition winners.
+                  </p>
                   
                   <div className="mt-6 inline-flex items-center text-sm font-medium text-primary">
                     <span>Develop cognitive shortcuts</span>
@@ -373,9 +377,11 @@ export default function HomePage() {
                     <LineChart className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />
                   </div>
                   
-                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Solutions That Make Sense</h3>
+                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Detailed Solution Analysis</h3>
                   
-                  <p className="font-geist-sans text-muted-foreground text-center">See every step, not just the answer. Finally understand what markers want.</p>
+                  <p className="font-geist-sans text-muted-foreground text-center">
+                    Master the step-by-step solutions that demonstrate exactly how to structure your answers for maximum marks.
+                  </p>
                   
                   <div className="mt-6 inline-flex items-center text-sm font-medium text-primary">
                     <span>HSC marker-approved techniques</span>
@@ -426,8 +432,8 @@ export default function HomePage() {
         <section className="py-16 md:py-32">
           <div className="mx-auto max-w-6xl space-y-12 px-6">
             <div className="relative z-10 grid items-center gap-4 md:grid-cols-2 md:gap-12">
-              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">Why This Isn't Just Another Boring Math Site</h2>
-              <p className="max-w-sm font-geist-sans sm:ml-auto">Every single syllabus dot point, covered. No gaps, no surprises.</p>
+              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">The Ultimate HSC Math Study System</h2>
+              <p className="max-w-sm font-geist-sans sm:ml-auto">Our digital platform combines expertly crafted practice papers with innovative learning tools designed specifically for NSW students.</p>
             </div>
             <div className="relative rounded-3xl p-3 md:-mx-8">
               <div className="aspect-video relative overflow-hidden rounded-xl border">
@@ -452,21 +458,21 @@ export default function HomePage() {
                   <LineChart className="size-4 text-primary" />
                   <h3 className="font-geist-sans text-sm font-medium">Progress Tracking</h3>
                 </div>
-                <p className="text-muted-foreground font-geist-sans text-sm">Track your glow-up with stats and charts. See your progress, flex your wins.</p>
+                <p className="text-muted-foreground font-geist-sans text-sm">Monitor your improvement with detailed analytics and performance insights.</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Target className="size-4 text-primary" />
                   <h3 className="font-geist-sans text-sm font-medium">Targeted Practice</h3>
                 </div>
-                <p className="text-muted-foreground font-geist-sans text-sm">Target your weak spots. Get better where it actually matters.</p>
+                <p className="text-muted-foreground font-geist-sans text-sm">Focus your study time on areas that need the most improvement.</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Clock className="size-4 text-primary" />
                   <h3 className="font-geist-sans text-sm font-medium">Time Management</h3>
                 </div>
-                <p className="text-muted-foreground font-geist-sans text-sm">Timed practice = exam confidence. No more running out of time.</p>
+                <p className="text-muted-foreground font-geist-sans text-sm">Learn to optimize your time during exams with timed practice sessions.</p>
               </div>
             </div>
           </div>
@@ -476,8 +482,8 @@ export default function HomePage() {
         <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
           <div className="@container mx-auto max-w-6xl px-6">
             <div className="text-center mb-12">
-              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">Stuck? Our AI Is Your 2am Math Lifeline</h2>
-              <p className="mt-4 font-geist-sans text-lg text-muted-foreground mx-auto max-w-2xl">Ask anything, get step-by-step help, and never feel lost again.</p>
+              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">Never Get Stuck on a Math Problem Again</h2>
+              <p className="mt-4 font-geist-sans text-lg text-muted-foreground mx-auto max-w-2xl">Our AI-powered solution assistant is like having a personal tutor available 24/7, ready to solve any math problem step-by-step.</p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -500,8 +506,8 @@ export default function HomePage() {
                         <Check className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-geist-sans font-medium">Prompt Library, No Overthinking</p>
-                        <p className="text-sm text-muted-foreground font-geist-sans">One tap = "Why is this better?" or "What's the trick here?"</p>
+                        <p className="font-geist-sans font-medium">Built-in Prompt Library</p>
+                        <p className="text-sm text-muted-foreground font-geist-sans">Ask "Why is this approach better?" or "What's the key insight?" with one click</p>
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
@@ -509,8 +515,8 @@ export default function HomePage() {
                         <Check className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-geist-sans font-medium">Explains in Your Language</p>
-                        <p className="text-sm text-muted-foreground font-geist-sans">Arabic, Chinese, French, German, Italian, and more. No Google Translate needed.</p>
+                        <p className="font-geist-sans font-medium">Multilingual Support</p>
+                        <p className="text-sm text-muted-foreground font-geist-sans">Get explanations in Arabic, Chinese, French, German, Italian and more</p>
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
@@ -518,8 +524,8 @@ export default function HomePage() {
                         <Check className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-geist-sans font-medium">Step-by-Step, No Spoilers</p>
-                        <p className="text-sm text-muted-foreground font-geist-sans">Reveal one step at a time, just like a real tutor (but way faster).</p>
+                        <p className="font-geist-sans font-medium">Reveal One Step at a Time</p>
+                        <p className="text-sm text-muted-foreground font-geist-sans">Learn gradually by viewing solution steps progressively - just like working with a tutor</p>
                       </div>
                     </li>
                   </ul>
@@ -728,8 +734,8 @@ export default function HomePage() {
         <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
           <div className="mx-auto max-w-6xl space-y-8 px-6 md:space-y-16">
             <div className="relative z-10 mx-auto max-w-xl space-y-6 text-center md:space-y-12">
-              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">Real Students. Real Glow-Ups.</h2>
-              <p className="font-geist-sans text-muted-foreground">Screenshots of Band 6 DMs not included (but we have them).</p>
+              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">Real Results from Real Students</h2>
+              <p className="font-geist-sans text-muted-foreground">Hear from students who transformed their HSC Mathematics results using our system</p>
             </div>
 
             <div className="grid gap-4 [--color-card:var(--color-muted)] *:border-none *:shadow-none sm:grid-cols-2 md:grid-cols-4 lg:grid-rows-2 dark:[--color-muted:var(--color-zinc-900)]">
@@ -743,7 +749,7 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent>
                   <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans text-xl font-medium">"I was literally failing, now I'm flexing my 89/100. These papers showed me what I was missing. Walked into the HSC feeling like a boss."</p>
+                    <p className="font-geist-sans text-xl font-medium">"I went from barely passing to scoring 89/100 in my last assessment. The practice papers helped me identify gaps I didn't even know I had. The structure of the materials made complex topics much easier to understand. I felt completely prepared walking into my HSC exam."</p>
 
                     <div className="grid grid-cols-[auto_1fr] items-center gap-3">
                       <Avatar className="size-12">
@@ -763,7 +769,7 @@ export default function HomePage() {
               <Card className="md:col-span-2">
                 <CardContent className="h-full pt-6">
                   <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans text-xl font-medium">"The questions were so close to the real HSC, it was almost scary. I felt like I'd already done the exam!"</p>
+                    <p className="font-geist-sans text-xl font-medium">"The question patterns in these practice papers were almost identical to what appeared in my actual HSC exam. It felt like I'd seen the paper before!"</p>
 
                     <div className="grid grid-cols-[auto_1fr] items-center gap-3">
                       <Avatar className="size-12">
@@ -782,7 +788,7 @@ export default function HomePage() {
               <Card>
                 <CardContent className="h-full pt-6">
                   <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans">"Three weeks in and math finally made sense. I stopped memorizing, started understanding, and my marks shot up."</p>
+                    <p className="font-geist-sans">"After 3 weeks using these materials, math finally 'clicked' for me. I stopped memorizing and started understanding."</p>
 
                     <div className="grid items-center gap-3 [grid-template-columns:auto_1fr]">
                       <Avatar className="size-12">
@@ -801,7 +807,7 @@ export default function HomePage() {
               <Card>
                 <CardContent className="h-full pt-6">
                   <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans">"The step-by-step breakdowns showed me exactly where I was going wrong. Fixed my mistakes, leveled up fast."</p>
+                    <p className="font-geist-sans">"The step-by-step solutions were incredibly helpful. I could see exactly where I was going wrong and fix my approach immediately."</p>
 
                     <div className="grid grid-cols-[auto_1fr] gap-3">
                       <Avatar className="size-12">
@@ -834,7 +840,7 @@ export default function HomePage() {
                 </div>
                 
                 <h2 className="mt-6 text-balance font-geist-sans text-4xl font-bold lg:text-5xl">
-                  Your HSC is coming. Don't let math be the reason you miss your dream ATAR.
+                  With HSC Mathematics exams approaching, students who implement this system now gain a significant advantage
                 </h2>
                 
                 <div className="mt-12 rounded-xl bg-primary-foreground/10 p-8">
@@ -919,7 +925,7 @@ export default function HomePage() {
                 <div className="mt-12 flex flex-wrap justify-center gap-4">
                   <Button asChild size="lg" className="rounded-xl px-5 text-base">
                     <Link href="/waitlist">
-                      <span>Get My Free Practice Papers</span>
+                      <span>Join Waitlist</span>
                     </Link>
                   </Button>
                   
