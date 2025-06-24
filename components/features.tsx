@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { BookOpen, LineChart, BookCheck, Calculator, BrainCircuit, Target } from 'lucide-react'
+import { BookCheck, Calculator, BrainCircuit } from 'lucide-react'
 import { ReactNode } from 'react'
 
 export default function Features() {
