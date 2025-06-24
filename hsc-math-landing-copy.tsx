@@ -33,7 +33,7 @@ export default function HSCMathLanding() {
                     ))}
                   </ul>
                   <Button asChild className="w-full mt-6">
-                    <Link href="/waitlist">
+                    <Link href="#">
                       View Resources <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
@@ -52,7 +52,7 @@ export default function HSCMathLanding() {
                     ))}
                   </ul>
                   <Button asChild className="w-full mt-6">
-                    <Link href="/waitlist">
+                    <Link href="#">
                       View Resources <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
@@ -71,7 +71,7 @@ export default function HSCMathLanding() {
                     ))}
                   </ul>
                   <Button asChild className="w-full mt-6">
-                    <Link href="/waitlist">
+                    <Link href="#">
                       View Resources <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
