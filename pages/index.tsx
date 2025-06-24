@@ -46,7 +46,7 @@ export default function HomePage() {
           <meta property="og:url" content="https://www.practicepaper.com.au" />
           <meta property="og:title" content="HSC Mathematics Practice Papers | Ace Your HSC Maths Exam" />
           <meta property="og:description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
-          <meta property="og:image" content="/pplogo1.png" />
+          <meta property="og:image" content="/social-pp.jpeg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           
@@ -55,7 +55,7 @@ export default function HomePage() {
           <meta property="twitter:url" content="https://www.practicepaper.com.au" />
           <meta property="twitter:title" content="HSC Mathematics Practice Papers | Ace Your HSC Maths Exam" />
           <meta property="twitter:description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
-          <meta property="twitter:image" content="/pplogo1.png" />
+          <meta property="twitter:image" content="/social-pp.jpeg" />
           
           {/* Additional SEO meta tags */}
           <meta name="keywords" content="HSC mathematics, practice papers, HSC maths exam, NSW students, Band 6 results, mathematics tutoring, HSC preparation" />
