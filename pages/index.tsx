@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Head from 'next/head'
 import { Button } from '@/components/ui/button'
 import { Check, X, BookOpen, Target, LineChart, Clock, ArrowRight, ChevronRight } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -33,7 +34,36 @@ const transitionVariants = {
 
 export default function HomePage() {
   return (
-    <>
+          <>
+        <Head>
+          <title>HSC Mathematics Practice Papers | Ace Your HSC Maths Exam</title>
+          <meta name="description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
+          <link rel="icon" href="/pplogo.png" />
+          <link rel="apple-touch-icon" href="/pplogo.png" />
+          
+          {/* Open Graph / Facebook */}
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content="https://www.practicepaper.com.au" />
+          <meta property="og:title" content="HSC Mathematics Practice Papers | Ace Your HSC Maths Exam" />
+          <meta property="og:description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
+          <meta property="og:image" content="/pplogo1.png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          
+          {/* Twitter */}
+          <meta property="twitter:card" content="summary_large_image" />
+          <meta property="twitter:url" content="https://www.practicepaper.com.au" />
+          <meta property="twitter:title" content="HSC Mathematics Practice Papers | Ace Your HSC Maths Exam" />
+          <meta property="twitter:description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
+          <meta property="twitter:image" content="/pplogo1.png" />
+          
+          {/* Additional SEO meta tags */}
+          <meta name="keywords" content="HSC mathematics, practice papers, HSC maths exam, NSW students, Band 6 results, mathematics tutoring, HSC preparation" />
+          <meta name="author" content="Practice Paper" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="robots" content="index, follow" />
+          <link rel="canonical" content="https://www.practicepaper.com.au" />
+        </Head>
      
       <HeroHeader />
       <main className="overflow-hidden">
