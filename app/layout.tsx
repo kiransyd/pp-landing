@@ -4,6 +4,7 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import ServiceWorkerInit from '@/components/ServiceWorkerInit'
+import Script from 'next/script'
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -39,6 +40,12 @@ export default function RootLayout({
                     {children}
                 </ThemeProvider>
                 <ServiceWorkerInit />
+                <Script
+                    defer
+                    src="https://cloud.umami.is/script.js"
+                    data-website-id="4d3dddcb-b3f7-4ae1-b20d-b56d926355b7"
+                    strategy="afterInteractive"
+                />
             </body>
             <GoogleAnalytics gaId="G-6KY6TLKXKY" />
         </html>
