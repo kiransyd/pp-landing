@@ -13,6 +13,15 @@ declare global {
 
 export default function WaitlistPage() {
   useEffect(() => {
+    // Set the page title with a slight delay to override layout metadata
+    const setTitle = () => {
+      document.title = "Join Waitlist - Practice Papers.io"
+    }
+    
+    // Set immediately and also after a short delay to ensure it sticks
+    setTitle()
+    const titleTimeout = setTimeout(setTitle, 100)
+    
     // Check if the Tally script is already present
     const scriptId = "tally-embed-script"
     if (!document.getElementById(scriptId)) {
@@ -25,11 +34,16 @@ export default function WaitlistPage() {
       }
       document.head.appendChild(script)
       return () => {
+        clearTimeout(titleTimeout)
         document.head.removeChild(script)
       }
     } else {
       // If script already loaded, just call loadEmbeds
       if (window.Tally) window.Tally.loadEmbeds()
+    }
+    
+    return () => {
+      clearTimeout(titleTimeout)
     }
   }, [])
 
