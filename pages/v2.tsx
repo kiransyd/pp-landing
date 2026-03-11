@@ -1165,6 +1165,7 @@ export default function V2() {
           </motion.div>
 
           <motion.div variants={itemVariant} className="pain-image-wrapper">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pp-image1.png" alt="Maths practice notes with Casio calculator" />
           </motion.div>
         </motion.div>
@@ -1519,6 +1520,7 @@ export default function V2() {
 
           <div className="social-content">
             <motion.div variants={itemVariant} className="social-image-wrapper">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/pp-students.jpg" alt="Students studying together in a classroom" />
             </motion.div>
 
