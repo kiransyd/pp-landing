@@ -1,968 +1,1794 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import Head from 'next/head'
-import { Button } from '@/components/ui/button'
-import { Check, X, BookOpen, Target, LineChart, Clock, ArrowRight, ChevronRight } from 'lucide-react'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { HeroHeader } from '@/components/hero5-header'
-import { TextEffect } from '@/components/motion-primitives/text-effect'
-import { AnimatedGroup } from '@/components/motion-primitives/animated-group'
-import Features from '@/components/features'
+import React, { useEffect, useRef, useState } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { motion, useScroll, useTransform, Variants, useInView, useMotionValue, animate } from 'motion/react';
 
-// Animation variants similar to those in hero-section examples
-const transitionVariants = {
-  item: {
-    hidden: {
-      opacity: 0,
-      filter: 'blur(12px)',
-      y: 12,
-    },
-    visible: {
-      opacity: 1,
-      filter: 'blur(0px)',
-      y: 0,
-              transition: {
-          type: 'spring' as const,
-          bounce: 0.3,
-          duration: 1.5,
-        },
-    },
-  },
+// Animated counter component
+function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const motionVal = useMotionValue(0);
+  const inView = useInView(ref, { once: true });
+  useEffect(() => {
+    if (!inView) return;
+    const controls = animate(motionVal, to, {
+      duration: 1.5,
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        if (ref.current) ref.current.textContent = Math.round(v) + suffix;
+      },
+    });
+    return controls.stop;
+  }, [inView, motionVal, to, suffix]);
+  return <span ref={ref}>0{suffix}</span>;
 }
 
-export default function HomePage() {
+const containerVariant: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariant: Variants = {
+  hidden: { opacity: 0, y: 20, filter: 'blur(5px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { type: 'spring', bounce: 0, duration: 0.8 }
+  },
+};
+
+const YEAR = new Date().getFullYear();
+
+export default function Home() {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const navBorderOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
+  const navBoxShadow = useTransform(scrollYProgress, [0, 0.05], ['0 0 0 rgba(9,9,11,0)', '0 1px 0 rgba(9,9,11,0.04)']);
+
+  // Parallax offsets for the 3 feature blocks (adjust range as needed)
+  const y1 = useTransform(scrollYProgress, [0.1, 0.4], [50, -50]);
+  const y2 = useTransform(scrollYProgress, [0.3, 0.6], [50, -50]);
+  const y3 = useTransform(scrollYProgress, [0.5, 0.8], [50, -50]);
+
+  // Parallax for pain section image
+  const painImageY = useTransform(scrollYProgress, [0.05, 0.25], [30, -30]);
+
   return (
-          <>
-        <Head>
-          <title>HSC Mathematics Practice Papers | Ace Your HSC Maths Exam</title>
-          <meta name="description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
-          <link rel="icon" href="/pplogo.png" />
-          <link rel="apple-touch-icon" href="/pplogo.png" />
+    <>
+      <Head>
+        <title>PracticePapers.io — HSC Maths Practice That Actually Works</title>
+        <meta name="description" content="Real HSC-style questions, worked solutions, and a tool that learns where you're going wrong. Join the beta free." />
+        <meta property="og:title" content="PracticePapers.io — HSC Maths Practice That Actually Works" />
+        <meta property="og:description" content="Band 6 maths students don't study more. They practise differently. Join the beta free." />
+        <meta property="og:image" content="/og-pp.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="PracticePapers.io — HSC Maths Practice That Actually Works" />
+        <meta name="twitter:description" content="Band 6 maths students don't study more. They practise differently. Join the beta free." />
+        <meta name="twitter:image" content="/og-pp.png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+          html { scroll-behavior: smooth; }
+
+          body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F8F7F5;
+            color: #09090B;
+            font-size: 16px;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+          }
+
+          /* NAV */
+          .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F8F7F5;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            padding: 0 40px;
+          }
+          .nav.scrolled {
+            border-bottom-color: rgba(9,9,11,0.08);
+            box-shadow: 0 1px 0 rgba(9,9,11,0.04);
+          }
+          .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+          .nav-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #09090B;
+            text-decoration: none;
+            letter-spacing: -0.03em;
+          }
+          .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+          }
+          .nav-links a {
+            font-size: 14px;
+            color: #52525B;
+            text-decoration: none;
+            transition: color 0.15s;
+          }
+          .nav-links a:hover { color: #09090B; }
+          .nav-links a.btn-nav,
+          .nav-links a.btn-nav:hover { color: #ffffff; }
+          .btn-nav {
+            background: #4F46E5;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.15s;
+            white-space: nowrap;
+          }
+          .btn-nav:hover { background: #4338CA; }
+          .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+          }
+          .nav-hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: #09090B;
+            border-radius: 2px;
+            transition: transform 0.2s, opacity 0.2s;
+          }
+          .nav-mobile {
+            display: none;
+            flex-direction: column;
+            gap: 0;
+            background: #F8F7F5;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            padding: 16px 20px 24px;
+          }
+          .nav-mobile.open { display: flex; }
+          .nav-mobile a {
+            font-size: 16px;
+            color: #18181B;
+            text-decoration: none;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 500;
+          }
+          .nav-mobile a:last-child { border-bottom: none; }
+          .nav-mobile .btn-nav {
+            margin-top: 12px;
+            text-align: center;
+            display: block;
+            font-size: 15px;
+            padding: 12px 20px;
+          }
+
+          /* EYEBROW */
+          .eyebrow {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #71717A;
+            margin-bottom: 20px;
+            display: block;
+          }
+
+          /* HERO */
+          .hero {
+            min-height: calc(100vh - 64px);
+            display: flex;
+            align-items: center;
+            padding: 80px 40px;
+            background: #F8F7F5;
+            position: relative;
+            overflow: hidden;
+          }
+          .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.6;
+          }
+          .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+          }
+          .hero-headline {
+            font-size: clamp(38px, 5vw, 64px);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            color: #09090B;
+            margin-bottom: 24px;
+          }
+          .hero-sub {
+            font-size: 17px;
+            color: #52525B;
+            line-height: 1.7;
+            max-width: 480px;
+            margin-bottom: 40px;
+          }
+          .hero-ctas {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+          }
+          .btn-primary {
+            background: #18181B;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.15s;
+            display: inline-block;
+          }
+          .btn-primary:hover { opacity: 0.85; }
+          .btn-link {
+            font-size: 15px;
+            color: #52525B;
+            text-decoration: none;
+            transition: color 0.15s;
+          }
+          .btn-link:hover { color: #09090B; }
+          .hero-proof {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+          }
+          .hero-proof-label {
+            font-size: 11px;
+            color: #A1A1AA;
+            letter-spacing: 0.01em;
+            margin-right: 2px;
+          }
+          .course-badge {
+            font-size: 11px;
+            font-weight: 500;
+            color: #52525B;
+            background: rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 3px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+          }
+          .hero-reassurance {
+            font-size: 12px;
+            color: #A1A1AA;
+            margin-top: 10px;
+          }
+
+          /* NOTEBOOK MOCKUP RE-DESIGN */
+          .hero-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.12) 0%, rgba(139, 92, 246, 0.07) 40%, rgba(250, 249, 246, 0) 70%);
+            filter: blur(40px);
+            z-index: 0;
+            animation: pulseGlow 8s ease-in-out infinite alternate;
+          }
+          @keyframes pulseGlow {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+          }
+          .notebook-mockup {
+            background: #fdfcf8;
+            border-radius: 4px 16px 16px 4px;
+            box-shadow: 
+              -5px 0 10px rgba(0,0,0,0.02),
+              0 24px 60px -12px rgba(0,0,0,0.15),
+              inset 4px 0 12px rgba(0,0,0,0.03);
+            transform: rotate(-1.5deg);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+            aspect-ratio: 4.5/5;
+            border-left: 3px solid rgba(0,0,0,0.1);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            border-right: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+          }
+          .notebook-page {
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(59, 130, 246, 0.15) 31px, rgba(59, 130, 246, 0.15) 32px);
+            background-size: 100% 32px;
+            background-position: 0 44px; /* offset the first line */
+            position: relative;
+          }
+          .notebook-margin {
+            position: absolute;
+            left: 56px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: rgba(220, 38, 38, 0.35);
+          }
+          .notebook-top-margin {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 44px;
+            height: 2px;
+            background-color: rgba(59, 130, 246, 0.15);
+          }
+          .notebook-content {
+            padding: 56px 30px 40px 72px;
+            font-family: 'Kalam', cursive;
+            font-size: 20px;
+            line-height: 32px; 
+            color: #1E3A8A; /* dark blue pen */
+          }
+          .handwritten-line {
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+          }
+          .mock-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+          }
+          .mock-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid rgba(0,0,0,0.07);
+          }
+          .mock-card-pill {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 3px;
+            margin-bottom: 6px;
+          }
+          .pill-indigo { background: #EEF2FF; color: #4F46E5; }
+          .pill-sky { background: #E0F2FE; color: #0284C7; }
+          .pill-amber { background: #FFF8E1; color: #D97706; }
+          .pill-emerald { background: #ECFDF5; color: #059669; }
+          .mock-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #09090B;
+            margin-bottom: 2px;
+          }
+          .mock-card-meta {
+            font-size: 10px;
+            color: #A1A1AA;
+          }
+          .mock-card-bar {
+            margin-top: 8px;
+            height: 3px;
+            background: #E4E4E7;
+            border-radius: 2px;
+            overflow: hidden;
+          }
+          .mock-card-fill {
+            height: 100%;
+            border-radius: 2px;
+          }
+
+          /* SECTIONS */
+          section { position: relative; }
+
+          .section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+          }
+
+          /* PAIN */
+          .pain-section {
+            padding: 140px 40px;
+            background: #F8F7F5;
+          }
+          .pain-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+          }
+          .pain-content {
+            text-align: left;
+          }
+          .pain-image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px -12px rgba(0,0,0,0.15), 0 10px 40px -10px rgba(0,0,0,0.06);
+            transform: rotate(2deg);
+            border: 1px solid rgba(0,0,0,0.05);
+            background: #fff;
+          }
+          .pain-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .section-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            color: #71717A;
+            margin-bottom: 24px;
+            display: block;
+          }
+          .section-headline {
+            font-size: clamp(28px, 3.5vw, 44px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: #09090B;
+            margin-bottom: 40px;
+          }
+          .pain-body p {
+            font-size: 17px;
+            color: #52525B;
+            line-height: 1.75;
+            margin-bottom: 20px;
+          }
+          .pain-body p:last-child { margin-bottom: 0; }
+          .pain-body strong {
+            color: #09090B;
+            font-weight: 500;
+          }
+
+          /* AGITATE */
+          .agitate-section {
+            padding: 140px 40px;
+            background: #F8F7F5;
+            border-top: 1px solid rgba(0,0,0,0.06);
+          }
+          .agitate-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 48px;
+          }
+          .agitate-col-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(232, 84, 58, 0.75);
+            margin-bottom: 14px;
+            display: block;
+          }
+          .agitate-col-headline {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: #09090B;
+            margin-bottom: 14px;
+            line-height: 1.2;
+          }
+          .agitate-col-body {
+            font-size: 15px;
+            color: #71717A;
+            line-height: 1.7;
+          }
+
+          /* SOLUTION DARK */
+          .solution-section {
+            padding: 140px 40px;
+            background: #18181B;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+          }
+          .solution-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('/papers-dark.jpeg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.07;
+            pointer-events: none;
+            z-index: 0;
+          }
+          .solution-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+          }
+          .solution-eyebrow {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #71717A;
+            margin-bottom: 20px;
+            display: block;
+          }
+          .solution-headline {
+            font-size: clamp(28px, 3.5vw, 44px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: #fff;
+            margin-bottom: 28px;
+            max-width: 640px;
+          }
+          .solution-body {
+            font-size: 17px;
+            color: #A1A1AA;
+            line-height: 1.75;
+            max-width: 660px;
+            margin-bottom: 72px;
+          }
+          .feature-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+          }
+          .feature-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 32px;
+          }
+          .feature-card-icon {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 20px;
+            color: #A1A1AA;
+          }
+          .feature-card-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+          }
+          .feature-card-body {
+            font-size: 14px;
+            color: #71717A;
+            line-height: 1.7;
+          }
+
+          /* FEATURE DEEP DIVE */
+          .features-section {
+            padding: 140px 40px;
+            background: #F8F7F5;
+          }
+          .feature-block {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            margin-bottom: 120px;
+          }
+          .feature-block:last-child { margin-bottom: 0; }
+          .feature-block.reverse { direction: rtl; }
+          .feature-block.reverse > * { direction: ltr; }
+          .feature-copy-eyebrow {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #71717A;
+            margin-bottom: 14px;
+            display: block;
+          }
+          .feature-copy-headline {
+            font-size: clamp(24px, 3vw, 40px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            color: #09090B;
+            margin-bottom: 18px;
+          }
+          .feature-copy-body {
+            font-size: 16px;
+            color: #52525B;
+            line-height: 1.75;
+          }
+
+          /* SCREENSHOT PLACEHOLDER RE-DESIGN */
+          .screenshot-wrap {
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 1200px;
+          }
+          .screenshot-placeholder {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 
+              0 30px 60px -15px rgba(0,0,0,0.08), 
+              0 10px 30px -10px rgba(0,0,0,0.04),
+              inset 0 1px 0 rgba(255,255,255,0.8);
+          }
+          .screenshot-inner-chrome {
+            background: rgba(255, 255, 255, 0.4);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+          }
+          .screenshot-body-content {
+            padding: 32px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            position: relative;
+          }
+          .screenshot-label {
+            position: absolute;
+            bottom: -36px;
+            left: 0; right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: #A1A1AA;
+            line-height: 1.6;
+          }
           
-          {/* Open Graph / Facebook */}
-          <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://www.practicepaper.com.au" />
-          <meta property="og:title" content="HSC Mathematics Practice Papers | Ace Your HSC Maths Exam" />
-          <meta property="og:description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
-          <meta property="og:image" content="/social-pp.jpeg" />
-          <meta property="og:image:width" content="1200" />
-          <meta property="og:image:height" content="630" />
-          
-          {/* Twitter */}
-          <meta property="twitter:card" content="summary_large_image" />
-          <meta property="twitter:url" content="https://www.practicepaper.com.au" />
-          <meta property="twitter:title" content="HSC Mathematics Practice Papers | Ace Your HSC Maths Exam" />
-          <meta property="twitter:description" content="Transform your HSC Mathematics performance with unlimited practice papers, step-by-step solutions, and AI-powered explanations. Join thousands of students achieving Band 5 & 6 results." />
-          <meta property="twitter:image" content="/social-pp.jpeg" />
-          
-          {/* Additional SEO meta tags */}
-          <meta name="keywords" content="HSC mathematics, practice papers, HSC maths exam, NSW students, Band 6 results, mathematics tutoring, HSC preparation" />
-          <meta name="author" content="Practice Paper" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta name="robots" content="index, follow" />
-          <link rel="canonical" content="https://www.practicepaper.com.au" />
-        </Head>
-     
-      <HeroHeader />
-      <main className="overflow-hidden">
-        {/* Hero Section using the hero section from Tailark */}
-        <section className="relative pt-24 md:pt-36">
-          <AnimatedGroup
-            variants={{
-              container: {
-                visible: {
-                  transition: {
-                    delayChildren: 1,
-                  },
-                },
-              },
-              item: {
-                hidden: {
-                  opacity: 0,
-                  y: 20,
-                },
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    type: 'spring' as const,
-                    bounce: 0.3,
-                    duration: 2,
-                  },
-                },
-              },
-            }}
-            className="absolute inset-0 -z-20"
+          /* BENTO GRID (FEATURE 1) */
+          .bento-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 12px;
+            width: 100%;
+            max-width: 360px;
+            z-index: 2;
+          }
+          .bento-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,1);
+            border: 1px solid rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+          }
+          .bento-card.large {
+            grid-column: span 2;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(238, 242, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border-color: rgba(79, 70, 229, 0.1);
+          }
+          .bento-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #52525B;
+            margin-bottom: 2px;
+          }
+          .bento-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #09090B;
+            letter-spacing: -0.02em;
+          }
+          .bento-sub {
+            font-size: 10px;
+            color: #A1A1AA;
+            margin-top: 4px;
+          }
+
+          /* SOCIAL PROOF */
+          .social-section {
+            padding: 140px 40px;
+            background: #F8F7F5;
+            border-top: 1px solid rgba(0,0,0,0.06);
+          }
+          .social-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+          }
+          .social-headline {
+            font-size: clamp(24px, 3vw, 38px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #09090B;
+            margin-bottom: 60px;
+            text-align: center;
+          }
+          .social-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+          }
+          .social-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px -12px rgba(0,0,0,0.1);
+          }
+          .social-image-wrapper img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+          }
+          .testimonials-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+          }
+          .testimonial-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 28px 32px;
+          }
+          .testimonial-text {
+            font-size: 15px;
+            color: #18181B;
+            line-height: 1.7;
+            margin-bottom: 20px;
+          }
+          .testimonial-author {
+            font-size: 12px;
+            color: #71717A;
+          }
+          .testimonial-author strong {
+            color: #09090B;
+            font-weight: 500;
+          }
+
+          /* PRICING */
+          .pricing-section {
+            padding: 140px 40px;
+            background: #F8F7F5;
+            border-top: 1px solid rgba(0,0,0,0.06);
+          }
+          .pricing-inner {
+            max-width: 880px;
+            margin: 0 auto;
+            text-align: center;
+          }
+          .pricing-headline {
+            font-size: clamp(26px, 3vw, 40px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #09090B;
+            margin-bottom: 60px;
+          }
+          .pricing-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            text-align: left;
+            margin-bottom: 32px;
+          }
+          .pricing-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 36px;
+          }
+          .pricing-card.recommended {
+            border: 1.5px solid #18181B;
+            box-shadow: 0 8px 32px -8px rgba(0,0,0,0.12);
+          }
+          .pricing-recommended-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: #18181B;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+          }
+          .pricing-plan-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #09090B;
+            margin-bottom: 4px;
+          }
+          .pricing-price {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: #09090B;
+            margin-bottom: 4px;
+          }
+          .pricing-price span {
+            font-size: 16px;
+            font-weight: 400;
+            color: #71717A;
+            letter-spacing: 0;
+          }
+          .pricing-descriptor {
+            font-size: 13px;
+            color: #71717A;
+            margin-bottom: 28px;
+            line-height: 1.5;
+          }
+          .pricing-divider {
+            border: none;
+            border-top: 1px solid rgba(0,0,0,0.07);
+            margin-bottom: 24px;
+          }
+          .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+          }
+          .pricing-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            color: #3F3F46;
+            margin-bottom: 12px;
+            line-height: 1.5;
+          }
+          .pricing-features li svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+          }
+          .btn-outline {
+            display: block;
+            width: 100%;
+            text-align: center;
+            border: 1.5px solid #18181B;
+            color: #18181B;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+          }
+          .btn-outline:hover { background: #18181B; color: #fff; }
+          .btn-dark {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: #18181B;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.15s;
+          }
+          .btn-dark:hover { opacity: 0.85; }
+          .pricing-fine-print {
+            font-size: 13px;
+            color: #A1A1AA;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.6;
+          }
+
+          /* EMOTIONAL CLOSE */
+          .close-section {
+            padding: 160px 40px;
+            background-color: #18181B;
+            text-align: center;
+            position: relative;
+          }
+          .close-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 640px;
+            margin: 0 auto;
+          }
+          .close-headline {
+            font-size: clamp(28px, 4vw, 52px);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1.08;
+            color: #fff;
+            margin-bottom: 28px;
+          }
+          .close-body {
+            font-size: 17px;
+            color: #A1A1AA;
+            line-height: 1.75;
+            margin-bottom: 48px;
+          }
+          .btn-white {
+            display: inline-block;
+            background: #fff;
+            color: #09090B;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 16px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.15s;
+            margin-bottom: 16px;
+          }
+          .btn-white:hover { opacity: 0.9; }
+          .close-micro {
+            font-size: 12px;
+            color: #52525B;
+          }
+
+          /* FOOTER */
+          .footer {
+            background: #F8F7F5;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding: 40px;
+          }
+          .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+          }
+          .footer-logo {
+            font-size: 14px;
+            font-weight: 600;
+            color: #09090B;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+          }
+          .footer-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+          }
+          .footer-links a {
+            font-size: 13px;
+            color: #71717A;
+            text-decoration: none;
+            transition: color 0.15s;
+          }
+          .footer-links a:hover { color: #09090B; }
+          .footer-copy {
+            font-size: 12px;
+            color: #A1A1AA;
+          }
+
+          /* FADE UP - replaced by framer motion
+          .fade-up {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+          }
+          .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          */
+
+          /* MOBILE */
+          @media (max-width: 768px) {
+            .nav { padding: 0 20px; }
+            .nav-links { display: none; }
+            .nav-hamburger { display: flex; }
+
+            .hero { padding: 60px 20px; min-height: auto; }
+            .hero-inner {
+              grid-template-columns: 1fr;
+              gap: 48px;
+            }
+            .hero-headline { font-size: 42px; }
+            .browser-mockup { transform: none; }
+            @keyframes float {
+              0%, 100% { transform: translateY(0px); }
+              50% { transform: translateY(-8px); }
+            }
+            .hero-ctas { flex-direction: column; align-items: flex-start; }
+            .btn-primary { width: 100%; text-align: center; }
+
+            .pain-section { padding: 80px 20px; }
+            .pain-inner { grid-template-columns: 1fr; gap: 48px; }
+            .pain-image-wrapper { transform: none; }
+
+            .agitate-section { padding: 80px 20px; }
+            .agitate-grid { grid-template-columns: 1fr; gap: 40px; }
+
+            .solution-section { padding: 80px 20px; }
+            .feature-cards { grid-template-columns: 1fr; }
+
+            .features-section { padding: 80px 20px; }
+            .feature-block {
+              grid-template-columns: 1fr;
+              gap: 40px;
+              margin-bottom: 72px;
+            }
+            .feature-block.reverse { direction: ltr; }
+
+            .social-section { padding: 80px 20px; }
+            .social-content { grid-template-columns: 1fr; gap: 48px; }
+            .social-image-wrapper { min-height: 300px; }
+            .testimonials-grid { grid-template-columns: 1fr; }
+
+            .pricing-section { padding: 80px 20px; }
+            .pricing-cards { grid-template-columns: 1fr; }
+
+            .close-section { padding: 100px 20px; }
+            .btn-white { width: 100%; text-align: center; }
+
+            .footer { padding: 32px 20px; }
+            .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .footer-links { flex-wrap: wrap; gap: 16px; }
+          }
+        `}} />
+      </Head>
+
+      {/* NAV */}
+      <motion.nav
+        className="nav"
+        id="main-nav"
+        style={{
+          borderBottomColor: useTransform(navBorderOpacity, v => `rgba(9,9,11,${v * 0.08})`),
+          boxShadow: navBoxShadow
+        }}
+      >
+        <div className="nav-inner">
+          <Link href="/" className="nav-logo">PracticePapers.io</Link>
+          <ul className="nav-links">
+            <li><Link href="#how-it-works">How it works</Link></li>
+            <li><Link href="#pricing">Pricing</Link></li>
+            <motion.li whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}><Link href="/beta" className="btn-nav">Join the beta</Link></motion.li>
+          </ul>
+          <button className="nav-hamburger" aria-label="Open menu" onClick={() => setMobileNavOpen(o => !o)}>
+            <span style={{ transform: mobileNavOpen ? 'translateY(7px) rotate(45deg)' : undefined }} />
+            <span style={{ opacity: mobileNavOpen ? 0 : 1 }} />
+            <span style={{ transform: mobileNavOpen ? 'translateY(-7px) rotate(-45deg)' : undefined }} />
+          </button>
+        </div>
+        <nav className={`nav-mobile${mobileNavOpen ? ' open' : ''}`}>
+          <Link href="#how-it-works" onClick={() => setMobileNavOpen(false)}>How it works</Link>
+          <Link href="#pricing" onClick={() => setMobileNavOpen(false)}>Pricing</Link>
+          <Link href="/beta" className="btn-nav" onClick={() => setMobileNavOpen(false)}>Join the beta</Link>
+        </nav>
+      </motion.nav>
+
+      {/* SECTION 1 — HERO */}
+      <section className="hero">
+        <div className="hero-inner">
+          <motion.div
+            className="hero-copy"
+            variants={containerVariant}
+            initial="hidden"
+            animate="visible"
           >
-            {/* Background gradient effect */}
-            <div className="pointer-events-none absolute inset-0 h-full w-full bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.2),rgba(255,255,255,0))]"></div>
-          </AnimatedGroup>
-          <div className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--color-background)_75%)]"></div>
-          
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="text-center sm:mx-auto">
-              <AnimatedGroup variants={transitionVariants}>
-                <Link
-                  href="#browse-papers"
-                  className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950">
-                  <span className="text-foreground text-sm">Finally stop stressing about HSC maths 😮‍💨</span>
-                  <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
+            <motion.span variants={itemVariant} className="eyebrow">HSC Mathematics · NSW · {YEAR}</motion.span>
+            <motion.h1 variants={itemVariant} className="hero-headline">
+              Band 6 maths students don't study more.<br />They practise differently.
+            </motion.h1>
+            <motion.p variants={itemVariant} className="hero-sub">
+              Real HSC-style questions, complete worked solutions, and a tracker that shows exactly which topics are costing you marks — so every session counts.
+            </motion.p>
+            <motion.div variants={itemVariant} className="hero-ctas">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link href="/beta" className="btn-primary">Join the beta — free</Link>
+              </motion.div>
+              <motion.div whileHover={{ x: 5 }}>
+                <Link href="#how-it-works" className="btn-link">See how it works ↓</Link>
+              </motion.div>
+            </motion.div>
+            <motion.p variants={itemVariant} className="hero-reassurance">Free during beta · No credit card required</motion.p>
+            <motion.div variants={itemVariant} className="hero-proof">
+              <span className="hero-proof-label">Covers</span>
+              <span className="course-badge">Standard</span>
+              <span className="course-badge">Advanced</span>
+              <span className="course-badge">Extension 1</span>
+              <span className="course-badge">Extension 2</span>
+            </motion.div>
+          </motion.div>
 
-                  <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
-                    <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                      <span className="flex size-6">
-                        <ArrowRight className="m-auto size-3" />
-                      </span>
-                      <span className="flex size-6">
-                        <ArrowRight className="m-auto size-3" />
-                      </span>
-                    </div>
+          <motion.div
+            className="hero-visual"
+            initial={{ opacity: 0, y: 30, scale: 0.95, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            transition={{ type: 'spring', bounce: 0, duration: 1, delay: 0.2 }}
+          >
+            <div className="hero-glow"></div>
+            <motion.div
+              className="notebook-mockup"
+              animate={{ y: [-4, 4, -4], rotate: [-1.5, -0.5, -1.5] }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+            >
+              <div className="notebook-page">
+                <div className="notebook-top-margin"></div>
+                <div className="notebook-margin"></div>
+                <div className="notebook-content">
+
+                  <div className="handwritten-line" style={{ color: '#09090B', fontWeight: 700, fontSize: '24px', marginBottom: '8px' }}>
+                    Q: Find the derivative of f(x) = x² sin(x)
                   </div>
-                </Link>
-              </AnimatedGroup>
 
-              <TextEffect
-                preset="fade-in-blur"
-                speedSegment={0.3}
-                as="h1"
-                className="mt-8 text-balance font-geist-sans text-6xl font-extrabold md:text-7xl lg:mt-12 xl:text-[5.25rem]">
-                Ace HSC maths. Smash your way to Band 6. 
-              </TextEffect>
-              
-              <TextEffect
-                per="line"
-                preset="fade-in-blur"
-                speedSegment={0.3}
-                delay={0.5}
-                as="p"
-                className="mx-auto mt-8 max-w-2xl text-balance font-geist-sans text-xl font-medium text-muted-foreground">
-                Get unlimited practice papers, step-by-step solutions, and AI-powered explanations to transform your HSC maths performance.
-              </TextEffect>
+                  <div className="handwritten-line" style={{ position: 'relative' }}>
+                    <span style={{ color: '#2563EB', zIndex: 1 }}>f'(x) = 2x cos(x)</span>
 
-              <AnimatedGroup
-                variants={{
-                  container: {
-                    visible: {
-                      transition: {
-                        staggerChildren: 0.05,
-                        delayChildren: 0.75,
-                      },
-                    },
-                  },
-                  ...transitionVariants,
-                }}
-                className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row">
-                <div
-                  key={1}
-                  className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="rounded-xl px-5 text-base">
-                    <Link href="/waitlist">
-                      <span className="text-nowrap">Join Waitlist</span>
-                    </Link>
-                  </Button>
-                </div>
-                <Button
-                  key={2}
-                  asChild
-                  size="lg"
-                  variant="ghost"
-                  className="h-10.5 rounded-xl px-5">
-                  <Link href="#problem">
-                    <span className="text-nowrap">Learn More</span>
-                  </Link>
-                </Button>
-              </AnimatedGroup>
-            </div>
-          </div>
+                    {/* The Scratch-out */}
+                    <motion.svg
+                      style={{ position: 'absolute', top: '50%', left: '-10px', width: '220px', height: '40px', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 2 }}
+                      viewBox="0 0 200 40"
+                      preserveAspectRatio="none"
+                    >
+                      <motion.path
+                        d="M 5 20 Q 50 5, 100 25 T 160 15 T 195 25"
+                        fill="transparent"
+                        stroke="#DC2626"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: [0, 1, 1, 0], opacity: [0, 1, 1, 0] }}
+                        transition={{ duration: 9, delay: 1, times: [0, 0.08, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                      />
+                      <motion.path
+                        d="M 190 15 Q 150 35, 90 15 T 30 25 T 10 15"
+                        fill="transparent"
+                        stroke="#DC2626"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: [0, 1, 1, 0], opacity: [0, 1, 1, 0] }}
+                        transition={{ duration: 9, delay: 1.4, times: [0, 0.07, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                      />
+                    </motion.svg>
 
-          <AnimatedGroup
-            variants={{
-              container: {
-                visible: {
-                  transition: {
-                    staggerChildren: 0.05,
-                    delayChildren: 0.75,
-                  },
-                },
-              },
-              ...transitionVariants,
-            }}
-            className="mt-12 px-6">
-            <div className="mx-auto max-w-5xl">
-              <div className="relative overflow-hidden rounded-xl border shadow-lg">
-                <div className="aspect-video md:aspect-[16/9] lg:aspect-[2/1]">
-                  <img 
-                    src="https://images.unsplash.com/photo-1530099486328-e021101a494a?q=80&w=2747&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    className="w-full h-full object-cover"
-                    alt="Students studying mathematics together"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-                  <div className="mx-auto max-w-3xl rounded-lg border bg-card/50 p-4 md:p-6 backdrop-blur-sm">
-                    <p className="text-base md:text-lg font-medium text-card-foreground">
-                      Spending 3 hours studying just to feel even more confused? We get it.
-                    </p>
-                    <p className="mt-2 text-base md:text-lg text-card-foreground">Literally everyone feels this way.</p>
-                    <p className="mt-4 text-lg md:text-xl font-bold text-primary">
-                      83% of HSC students report feeling overwhelmed by the mathematics curriculum.
-                    </p>
-                    <p className="mt-4 md:mt-6 text-base md:text-lg italic text-card-foreground">
-                      The kids getting Band 6s aren't smarter. They just study differently.
-                    </p>
+                    {/* The correction markup */}
+                    <motion.div
+                      style={{ position: 'absolute', right: '40px', top: '8px', color: '#DC2626', fontSize: '16px', fontWeight: 'bold', zIndex: 3 }}
+                      animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 0.8], rotate: -15 }}
+                      transition={{ duration: 9, delay: 1.8, times: [0, 0.05, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                    >
+                      Product Rule!
+                    </motion.div>
                   </div>
+
+                  <motion.div
+                    className="handwritten-line"
+                    style={{ marginTop: '16px', color: '#059669' }}
+                    animate={{ opacity: [0, 1, 1, 0] }}
+                    transition={{ duration: 9, delay: 2.5, times: [0, 0.07, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                  >
+                    f'(x) = x²(cos x) + 2x(sin x)
+                  </motion.div>
+                  <motion.div
+                    className="handwritten-line"
+                    style={{ color: '#059669' }}
+                    animate={{ opacity: [0, 1, 1, 0] }}
+                    transition={{ duration: 9, delay: 3, times: [0, 0.07, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                  >
+                    f'(x) = x(x cos x + 2 sin x)
+                  </motion.div>
+
+                  {/* Checkmark */}
+                  <motion.div
+                    style={{ position: 'absolute', bottom: '60px', right: '40px', color: '#059669' }}
+                    animate={{ opacity: [0, 0.8, 0.8, 0] }}
+                    transition={{ duration: 9, delay: 3.8, times: [0, 0.06, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                  >
+                    <svg width="60" height="60" viewBox="0 0 100 100" fill="none">
+                      <motion.path
+                        d="M 20 50 L 40 70 L 90 20"
+                        stroke="#059669"
+                        strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        animate={{ pathLength: [0, 1, 1, 0] }}
+                        transition={{ duration: 9, delay: 3.8, times: [0, 0.06, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                      />
+                      <motion.circle
+                        cx="50" cy="50" r="45"
+                        stroke="#059669"
+                        strokeWidth="4"
+                        strokeDasharray="10 10"
+                        animate={{ opacity: [0, 0.5, 0.5, 0] }}
+                        transition={{ duration: 9, delay: 4.2, times: [0, 0.06, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                      />
+                    </svg>
+                  </motion.div>
+
                 </div>
               </div>
-            </div>
-          </AnimatedGroup>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
-          {/* Credibility Section */}
-          <div className="mt-16 mx-auto max-w-4xl px-6">
-            <div className="rounded-xl border bg-primary/5 p-8 text-center">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.396-.756 1.506-.756 1.902 0l1.07 2.04a1 1 0 00.95.69h2.2c.969 0 1.371 1.24.588 1.81l-1.776 1.287a1 1 0 00-.363 1.118l.675 2.093c.317.98-.755 1.79-1.613 1.27L10 11.347l-1.682 1.178c-.858.52-1.93-.29-1.613-1.27l.675-2.093a1 1 0 00-.363-1.118L5.241 7.467c-.783-.57-.38-1.81.588-1.81h2.2a1 1 0 00.95-.69l1.07-2.04z"/>
-                    </svg>
+      {/* SECTION 2 — PAIN */}
+      <section className="pain-section" id="pain">
+        <motion.div
+          className="pain-inner"
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.div className="pain-content">
+            <motion.span variants={itemVariant} className="section-label">be honest with yourself</motion.span>
+            <motion.h2 variants={itemVariant} className="section-headline">You've put in the hours.<br />So why doesn't it feel like enough?</motion.h2>
+            <motion.div variants={itemVariant} className="pain-body">
+              <p><strong>Re-reading your notes feels productive. It isn't.</strong> The only thing that builds exam skill in maths is sitting with a real question, attempting it cold, checking where your reasoning broke down, and doing it again. That's it.</p>
+              <p>You've been to every class. You've got the notes. You can follow a worked example line by line. But in the exam, when the integration question is set up slightly differently — or the Extension 1 proof goes in a direction you didn't expect — your mind goes blank.</p>
+              <p><strong>That's not a you problem. That's a practice problem.</strong></p>
+              <p>The students scoring in the top bands aren't smarter. They haven't found some secret shortcut. They've just done more real questions, under real conditions — and they know exactly which topics to target.</p>
+            </motion.div>
+          </motion.div>
+
+          <motion.div variants={itemVariant} className="pain-image-wrapper" style={{ y: painImageY }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/student.jpeg" alt="HSC student studying late at night, exhausted over maths exam papers" />
+          </motion.div>
+        </motion.div>
+      </section >
+
+      {/* SECTION 3 — AGITATE */}
+      < section className="agitate-section" >
+        <motion.div
+          className="agitate-grid"
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.div variants={containerVariant}>
+            <motion.span variants={itemVariant} className="agitate-col-label">The fake study trap</motion.span>
+            <motion.h3 variants={itemVariant} className="agitate-col-headline">Re-reading your solutions isn't maths practice.</motion.h3>
+            <motion.p variants={itemVariant} className="agitate-col-body">Following someone else's working feels like understanding. It isn't. You won't know if you can actually do a proof or a differentiation question until you close the notes and try.</motion.p>
+          </motion.div>
+          <motion.div variants={containerVariant}>
+            <motion.span variants={itemVariant} className="agitate-col-label">The scattered practice problem</motion.span>
+            <motion.h3 variants={itemVariant} className="agitate-col-headline">Random questions don't fix weak topics.</motion.h3>
+            <motion.p variants={itemVariant} className="agitate-col-body">If Integration by substitution keeps costing you marks, doing a mix of random questions won't fix it. You need to drill that topic — across Advanced, Extension 1, and Extension 2 papers — until it's solid.</motion.p>
+          </motion.div>
+          <motion.div variants={containerVariant}>
+            <motion.span variants={itemVariant} className="agitate-col-label">The trial week panic</motion.span>
+            <motion.h3 variants={itemVariant} className="agitate-col-headline">You can't cram maths.</motion.h3>
+            <motion.p variants={itemVariant} className="agitate-col-body">Complex Numbers, Proof by Induction, Volumes of Revolution — these topics take time to click. Students who improve don't do more the week before trials. They started earlier and practised more deliberately.</motion.p>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* SECTION 4 — SOLUTION DARK */}
+      <section className="solution-section" id="how-it-works">
+        <motion.div
+          className="solution-inner"
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.div variants={itemVariant}>
+            <span className="solution-eyebrow">what actually works</span>
+            <h2 className="solution-headline">Stop reviewing. Start doing.</h2>
+            <p className="solution-body">
+              PracticePapers.io is built around one idea: the best way to prepare for HSC Mathematics is to do HSC-quality questions — across Standard, Advanced, Extension 1, and Extension 2 — attempt them properly, check your answers against complete worked solutions, and track exactly which topics keep tripping you up. Not passive review. Not highlighting notes at midnight. Deliberate, targeted maths practice — with the feedback loop that actually makes it stick before your exam.
+            </p>
+          </motion.div>
+          <motion.div className="feature-cards" variants={containerVariant}>
+            <motion.div variants={itemVariant} whileHover={{ y: -8, scale: 1.02 }} className="feature-card">
+              <svg className="feature-card-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="6" y="4" width="24" height="28" rx="3" />
+                <line x1="11" y1="12" x2="25" y2="12" />
+                <line x1="11" y1="17" x2="25" y2="17" />
+                <line x1="11" y1="22" x2="19" y2="22" />
+              </svg>
+              <div className="feature-card-title">Real HSC-style papers</div>
+              <p className="feature-card-body">Past-paper-quality questions across all levels — Standard, Advanced, Extension 1, Extension 2. Formatted exactly like the real exam.</p>
+            </motion.div>
+            <motion.div variants={itemVariant} whileHover={{ y: -8, scale: 1.02 }} className="feature-card">
+              <svg className="feature-card-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="10" cy="10" r="3" />
+                <circle cx="26" cy="10" r="3" />
+                <circle cx="10" cy="26" r="3" />
+                <circle cx="26" cy="26" r="3" />
+                <line x1="13" y1="10" x2="23" y2="10" />
+                <line x1="10" y1="13" x2="10" y2="23" />
+                <line x1="13" y1="26" x2="23" y2="26" />
+              </svg>
+              <div className="feature-card-title">Worked solutions, step by step</div>
+              <p className="feature-card-body">Every question has a complete worked solution. Not just the answer — the method, the reasoning, and how to structure your response for full marks.</p>
+            </motion.div>
+            <motion.div variants={itemVariant} whileHover={{ y: -8, scale: 1.02 }} className="feature-card">
+              <svg className="feature-card-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="18" r="12" />
+                <circle cx="18" cy="18" r="5" />
+                <line x1="18" y1="4" x2="18" y2="8" />
+                <line x1="18" y1="28" x2="18" y2="32" />
+                <line x1="4" y1="18" x2="8" y2="18" />
+                <line x1="28" y1="18" x2="32" y2="18" />
+              </svg>
+              <div className="feature-card-title">Practice by topic</div>
+              <p className="feature-card-body">Choose a topic — Integration, Probability, Vectors — and drill questions from across all papers. Focused practice, not random noise.</p>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* SECTION 5 — FEATURE DEEP DIVE */}
+      < section className="features-section" >
+
+        {/* Feature 1: screenshot left, text right */}
+        <motion.div
+          className="feature-block"
+          variants={itemVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.div className="screenshot-wrap" style={{ y: y1 }}>
+            <div className="screenshot-placeholder">
+              <div className="screenshot-inner-chrome">
+                <div className="browser-dots">
+                  <div className="browser-dot dot-red"></div>
+                  <div className="browser-dot dot-yellow"></div>
+                  <div className="browser-dot dot-green"></div>
+                </div>
+                <div className="browser-url" style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '6px', padding: '5px 12px', fontSize: '11px', color: '#71717A', flex: 1, border: '1px solid rgba(0,0,0,0.05)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}>
+                  <svg style={{ marginRight: '6px', opacity: 0.5, verticalAlign: 'middle' }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  practicepapers.io/topics
+                </div>
+              </div>
+              <div className="screenshot-body-content">
+
+                {/* Stunning Bento Box Visualization */}
+                <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', filter: 'blur(20px)', zIndex: 0 }} />
+
+                <motion.div
+                  className="bento-grid"
+                  variants={containerVariant}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  <motion.div variants={itemVariant} className="bento-card large" whileHover={{ y: -4, boxShadow: '0 12px 24px -8px rgba(79,70,229,0.15)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div className="bento-title">Calculus Mastery</div>
+                        <div className="bento-value"><CountUp to={84} suffix="%" /></div>
+                        <div className="bento-sub">Top 10% of state</div>
+                      </div>
+                      <svg width="48" height="48" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15.91549430918954" fill="transparent" stroke="rgba(79, 70, 229, 0.1)" strokeWidth="3"></circle>
+                        <motion.circle
+                          cx="18" cy="18" r="15.91549430918954"
+                          fill="transparent" stroke="#4F46E5" strokeWidth="3"
+                          strokeDasharray="84 16" strokeDashoffset="25" strokeLinecap="round"
+                          initial={{ strokeDasharray: "0 100" }}
+                          whileInView={{ strokeDasharray: "84 16" }}
+                          transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+                        ></motion.circle>
+                      </svg>
+                    </div>
+                  </motion.div>
+
+                  <motion.div variants={itemVariant} className="bento-card" whileHover={{ y: -4, boxShadow: '0 8px 16px -6px rgba(0,0,0,0.05)' }}>
+                    <div className="bento-title" style={{ color: '#0284C7' }}>Trigonometry</div>
+                    <div className="bento-value" style={{ fontSize: '18px' }}><CountUp to={142} /> / 160</div>
+                    <div className="bento-sub">Questions completed</div>
+                    <div style={{ marginTop: '8px', height: '3px', background: 'rgba(2, 132, 199, 0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                      <motion.div
+                        style={{ height: '100%', background: '#0284C7', borderRadius: '2px' }}
+                        initial={{ width: '0%' }}
+                        whileInView={{ width: '88%' }}
+                        transition={{ duration: 1, delay: 0.6 }}
+                      />
+                    </div>
+                  </motion.div>
+
+                  <motion.div variants={itemVariant} className="bento-card" whileHover={{ y: -4, boxShadow: '0 8px 16px -6px rgba(0,0,0,0.05)' }}>
+                    <div className="bento-title" style={{ color: '#D97706' }}>Probability</div>
+                    <div className="bento-value" style={{ fontSize: '18px' }}><CountUp to={48} /> / 65</div>
+                    <div className="bento-sub">Questions completed</div>
+                    <div style={{ marginTop: '8px', height: '3px', background: 'rgba(217, 119, 6, 0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                      <motion.div
+                        style={{ height: '100%', background: '#D97706', borderRadius: '2px' }}
+                        initial={{ width: '0%' }}
+                        whileInView={{ width: '73%' }}
+                        transition={{ duration: 1, delay: 0.7 }}
+                      />
+                    </div>
+                  </motion.div>
+
+                </motion.div>
+
+              </div>
+            </div>
+          </motion.div>
+          <div className="feature-copy">
+            <span className="feature-copy-eyebrow">Topic browser</span>
+            <h3 className="feature-copy-headline">Every topic. Every paper. One place.</h3>
+            <p className="feature-copy-body">Browse by course — Standard, Advanced, Extension 1, Extension 2 — then drill into any topic. Integration. Proof by Induction. Binomial Probability. Volumes of Revolution. Each topic shows exactly how many questions are in the bank across all past papers, so you always know what's left to practise.</p>
+          </div>
+        </motion.div>
+
+        {/* Feature 2: text left, screenshot right */}
+        <motion.div
+          className="feature-block reverse"
+          variants={itemVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.div className="screenshot-wrap" style={{ y: y2 }}>
+            <div className="screenshot-placeholder">
+              <div className="screenshot-inner-chrome">
+                <div className="browser-dots">
+                  <div className="browser-dot dot-red"></div>
+                  <div className="browser-dot dot-yellow"></div>
+                  <div className="browser-dot dot-green"></div>
+                </div>
+                <div className="browser-url" style={{ background: 'rgba(255,255,255,0.5)', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#71717A', flex: 1 }}>practicepapers.io/practice</div>
+              </div>
+              <div className="screenshot-body-content" style={{ gap: '16px' }}>
+                <div style={{ position: 'absolute', top: '10px', left: '-20px', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)', filter: 'blur(30px)', zIndex: 0 }} />
+
+                <motion.div
+                  style={{ width: '100%', maxWidth: '340px', zIndex: 1 }}
+                  variants={containerVariant}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  {/* The Question Card */}
+                  <motion.div variants={itemVariant} style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)', marginBottom: '12px', position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 600, color: '#09090B', background: '#F4F4F5', padding: '4px 8px', borderRadius: '4px' }}>Question 14b</span>
+                      <span style={{ fontSize: '11px', color: '#A1A1AA', fontWeight: 500 }}>4 marks</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#18181B', lineHeight: 1.6, marginBottom: '16px', fontWeight: 500 }}>
+                      Find the exact area enclosed between the curves <br />
+                      <span style={{ fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', fontSize: '14px' }}>y = x²</span> and <span style={{ fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', fontSize: '14px' }}>y = 4 − x²</span>.
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02, backgroundColor: '#27272A' }}
+                      whileTap={{ scale: 0.98 }}
+                      style={{ width: '100%', background: '#18181B', color: '#fff', fontSize: '11px', fontWeight: 600, padding: '10px 0', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"></path></svg>
+                      Reveal Solution
+                    </motion.button>
+                  </motion.div>
+
+                  {/* The Unfolded Solution Card */}
+                  <motion.div
+                    variants={itemVariant}
+                    style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(250,250,250,0.95) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '20px', boxShadow: '0 20px 40px -10px rgba(16, 185, 129, 0.1)', position: 'relative' }}
+                  >
+                    <div style={{ position: 'absolute', top: '-8px', left: '50%', transform: 'translateX(-50%)', width: '2px', height: '14px', background: 'rgba(16, 185, 129, 0.3)' }} />
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#059669', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      Step 1: Find points of intersection
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#52525B', lineHeight: 1.6, fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', background: 'rgba(255,255,255,0.7)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.04)', textAlign: 'center' }}>
+                      x² = 4 − x² <br />
+                      2x² = 4 <br />
+                      x = ±√2
+                    </div>
+                  </motion.div>
+                </motion.div>
+
+              </div>
+            </div>
+          </motion.div>
+          <div className="feature-copy">
+            <span className="feature-copy-eyebrow">Worked solutions</span>
+            <h3 className="feature-copy-headline">See the question first. Attempt it. Then check your work.</h3>
+            <p className="feature-copy-body">Solutions are hidden until you ask. Because in HSC Maths, it's never just about the answer — it's about method marks, correct notation, and how you structure your working. Every solution shows you exactly how to set it out for full marks, not just what x equals.</p>
+          </div>
+        </motion.div>
+
+        {/* Feature 3: screenshot left, text right */}
+        <motion.div
+          className="feature-block"
+          variants={itemVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.div className="screenshot-wrap" style={{ y: y3 }}>
+            <div className="screenshot-placeholder">
+              <div className="screenshot-inner-chrome">
+                <div className="browser-dots">
+                  <div className="browser-dot dot-red"></div>
+                  <div className="browser-dot dot-yellow"></div>
+                  <div className="browser-dot dot-green"></div>
+                </div>
+                <div className="browser-url" style={{ background: 'rgba(255,255,255,0.5)', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#71717A', flex: 1 }}>practicepapers.io/weak-areas</div>
+              </div>
+              <div className="screenshot-body-content" style={{ gap: '12px' }}>
+                <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%)', filter: 'blur(30px)', zIndex: 0 }} />
+
+                <motion.div
+                  style={{ width: '100%', maxWidth: '340px', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}
+                  variants={containerVariant}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  {[
+                    { topic: 'Integration', rate: 42, level: '2U', color: '#EF4444', gradient: 'linear-gradient(90deg, #FCA5A5, #EF4444)' },
+                    { topic: 'Complex Numbers', rate: 55, level: 'E2', color: '#F59E0B', gradient: 'linear-gradient(90deg, #FCD34D, #F59E0B)' },
+                    { topic: 'Probability', rate: 68, level: 'E1', color: '#3B82F6', gradient: 'linear-gradient(90deg, #93C5FD, #3B82F6)' },
+                    { topic: 'Trigonometry', rate: 84, level: '2U', color: '#10B981', gradient: 'linear-gradient(90deg, #6EE7B7, #10B981)' },
+                  ].map((w) => (
+                    <motion.div
+                      key={w.topic}
+                      variants={itemVariant}
+                      whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.9)' }}
+                      style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)', borderRadius: '10px', padding: '12px 16px', border: '1px solid rgba(255,255,255,0.8)', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'default' }}
+                    >
+                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${w.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `inset 0 1px 0 rgba(255,255,255,0.5)` }}>
+                        <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: w.gradient, boxShadow: `0 2px 4px ${w.color}40` }}></div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#18181B' }}>{w.topic}</span>
+                          <span style={{ fontSize: '10px', background: '#F4F4F5', color: '#52525B', padding: '2px 6px', borderRadius: '4px', fontWeight: 600, border: '1px solid rgba(0,0,0,0.04)' }}>{w.level}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ flex: 1, height: '6px', background: 'rgba(0,0,0,0.04)', borderRadius: '3px', overflow: 'hidden', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}>
+                            <motion.div
+                              style={{ height: '100%', background: w.gradient, borderRadius: '3px' }}
+                              initial={{ width: '0%' }}
+                              whileInView={{ width: `${w.rate}%` }}
+                              transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                            />
+                          </div>
+                          <div style={{ fontSize: '10px', fontWeight: 600, color: w.color, width: '28px', textAlign: 'right' }}>{w.rate}%</div>
+                        </div>
+                      </div>
+                    </motion.div>
                   ))}
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">Trusted by real HSC Math students</span>
+                </motion.div>
+
               </div>
-              <h3 className="text-2xl font-geist-sans font-bold mb-3">Created by Students Who Actually Aced HSC Maths</h3>
-              <p className="font-geist-sans text-lg text-muted-foreground">
-                Built by high-achieving selective school students who topped HSC Mathematics and current HSC markers. 
-                We know exactly what it takes to get Band 6 because we've been there.
-              </p>
             </div>
+          </motion.div>
+          <div className="feature-copy">
+            <span className="feature-copy-eyebrow">Weak areas tracking</span>
+            <h3 className="feature-copy-headline">It knows where you keep going wrong.</h3>
+            <p className="feature-copy-body">After you mark your answers, PracticePapers tracks your performance by topic — across every course level. If you're consistently dropping marks on Extension 1 Trigonometric Equations or Advanced Probability, that rises to the top. Your next session targets exactly what's costing you marks. Not a generic maths revision schedule — yours.</p>
           </div>
-        </section>
+        </motion.div>
 
-        {/* Problem Section using features component structure */}
-        <section id="problem" className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
-          <div className="@container mx-auto max-w-5xl px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">Why You're Still Struggling (It's Not Your Fault)</h2>
-              <p className="mt-4 font-geist-sans text-lg text-muted-foreground max-w-2xl mx-auto">You're not bad at maths. You're just studying it wrong. (And so is literally everyone else.)</p>
-            </div>
+      </section>
 
-            <div className="relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-primary/10 rounded-xl blur-xl opacity-30"></div>
-              <div className="relative rounded-xl border overflow-hidden bg-card/50 backdrop-blur-sm">
-                <div className="p-8 md:p-12">
-                  <div className="flex flex-col gap-6 md:gap-10">
-                    <div className="flex flex-col md:flex-row gap-6 md:items-center">
-                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 shrink-0 md:w-20 md:h-20">
-                        <X className="w-8 h-8 text-destructive" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Reading notes for 3 hours just to blank out in the exam</h3>
-                        <p className="text-muted-foreground font-geist-sans">You know that feeling when you 'understand' everything at home but your brain goes 404 during the actual test? Yeah, that's this.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="w-full border-t border-dashed border-zinc-200 dark:border-zinc-800"></div>
-                    
-                    <div className="flex flex-col md:flex-row gap-6 md:items-center">
-                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 shrink-0 md:w-20 md:h-20">
-                        <svg className="w-8 h-8 text-destructive" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 9H21M9 15L12 12M12 12L15 15M12 12V21M12 3V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Watching random YouTube tutorials that won't even be on your exam 🤦‍♀️</h3>
-                        <p className="text-muted-foreground font-geist-sans">Stop watching American maths YouTubers teach methods that aren't even in the NSW syllabus. You're literally wasting your time.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="w-full border-t border-dashed border-zinc-200 dark:border-zinc-800"></div>
-                    
-                    <div className="flex flex-col md:flex-row gap-6 md:items-center">
-                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 shrink-0 md:w-20 md:h-20">
-                        <svg className="w-8 h-8 text-destructive" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M15 15L21 21M21 15L15 21M10 21V14L3 7V3H21V7L14 14V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Doing the same easy questions over and over</h3>
-                        <p className="text-muted-foreground font-geist-sans">Getting comfortable with basic questions while avoiding the hard ones? That's why the actual HSC feels like it's written in a different language.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="w-full border-t border-dashed border-zinc-200 dark:border-zinc-800"></div>
-                    
-                    <div className="flex flex-col md:flex-row gap-6 md:items-center">
-                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 shrink-0 md:w-20 md:h-20">
-                        <svg className="w-8 h-8 text-destructive" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-geist-sans font-bold mb-2">Using your older sibling's 2019 textbooks</h3>
-                        <p className="text-muted-foreground font-geist-sans">The syllabus changed. Your textbook didn't. Now you're studying stuff that literally won't be tested.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mx-auto mt-12 max-w-3xl rounded-xl bg-destructive/5 p-6 text-center border border-destructive/20">
-              <p className="text-xl font-bold font-geist-sans text-destructive">
-                These methods create a dangerous illusion that SHATTERS during your actual HSC.
-              </p>
-              <p className="mt-3 text-muted-foreground font-geist-sans">
-                Real talk: 83% of students who don't hit their target use these exact 'study' methods.
-              </p>
-            </div>
+      {/* SECTION 6 — SOCIAL PROOF */}
+      <section className="social-section">
+        <motion.div
+          className="social-inner"
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.h2 variants={itemVariant} className="social-headline">From students who were exactly where you are</motion.h2>
+
+          <div className="social-content">
+            <motion.div variants={itemVariant} className="social-image-wrapper">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/pp-students.jpg" alt="Students studying together in a classroom" />
+            </motion.div>
+
+            <motion.div variants={containerVariant} className="testimonials-grid">
+              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+                <p className="testimonial-text">"genuinely the most useful thing I've found for ext 2. doing questions by topic before trials changed everything."</p>
+                <div className="testimonial-author"><strong>Anika S.</strong> — Mathematics Extension 2</div>
+              </motion.div>
+              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+                <p className="testimonial-text">"I used to just re-read my notes for hours and wonder why I kept making the same mistakes. The weak areas feature literally showed me what I was doing. Kind of confronting but also exactly what I needed."</p>
+                <div className="testimonial-author"><strong>James T.</strong> — Mathematics Advanced</div>
+              </motion.div>
+              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+                <p className="testimonial-text">"the solutions are actually good. like proper worked solutions not just 'x = 4'. i finally understand why the method works, not just what to write."</p>
+                <div className="testimonial-author"><strong>Priya M.</strong> — Mathematics Extension 1</div>
+              </motion.div>
+              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+                <p className="testimonial-text">"my mum found this and I'm genuinely glad she did"</p>
+                <div className="testimonial-author"><strong>Ethan R.</strong> — Mathematics Standard</div>
+              </motion.div>
+            </motion.div>
           </div>
-        </section>
+        </motion.div>
+      </section>
 
-        {/* 3-Step Formula Section */}
-        <section className="py-16 md:py-32">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="text-center mb-16">
-              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">The 3-Step HSC Maths Glow-Up</h2>
-              <p className="mt-4 font-geist-sans text-lg text-muted-foreground max-w-2xl mx-auto">After helping 5,000+ students achieve Band 5 and 6 results, we've developed a system that consistently produces results:</p>
-            </div>
+      {/* SECTION 7 — PRICING */}
+      <section className="pricing-section" id="pricing">
+        <motion.div
+          className="pricing-inner"
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.h2 variants={itemVariant} className="pricing-headline">Simple pricing. No surprises.</motion.h2>
+          <motion.div variants={containerVariant} className="pricing-cards">
 
-            <div className="relative">
-              <div className="grid md:grid-cols-3 gap-12 relative">
-                {/* Step 1: Strategic Practice */}
-                <div className="relative flex flex-col items-center">
-                  <div className="mb-6 relative">
-                    <div className="absolute -inset-2 rounded-full bg-zinc-100 dark:bg-zinc-800"></div>
-                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700 shadow-sm">
-                      <span className="text-2xl font-bold">1</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                    <BookOpen className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />
-                  </div>
-                  
-                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Practice That Actually Counts</h3>
-                  
-                  <p className="font-geist-sans text-muted-foreground text-center">No more random worksheets. Only HSC-style questions that show up in the real exam.</p>
-                  
-                  <div className="mt-6 inline-flex items-center text-sm font-medium text-primary">
-                    <span>Evidence-based approach</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                  </div>
-                </div>
-                
-                {/* Middle section with connector lines */}
-                <div className="relative flex flex-col items-center">
-                  <div className="mb-6 relative">
-                    <div className="absolute -inset-2 rounded-full bg-zinc-100 dark:bg-zinc-800"></div>
-                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700 shadow-sm">
-                      <span className="text-2xl font-bold">2</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                    <svg className="h-8 w-8 text-zinc-700 dark:text-zinc-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-                      <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="2" />
-                      <circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                  </div>
-                  
-                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Spot the Patterns, Beat the Exam</h3>
-                  
-                  <p className="font-geist-sans text-muted-foreground text-center">Learn the sneaky tricks HSC loves to repeat. Get good at recognizing them.</p>
-                  
-                  <div className="mt-6 inline-flex items-center text-sm font-medium text-primary">
-                    <span>Develop cognitive shortcuts</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                  </div>
-                </div>
-                
-                {/* Step 3: Detailed Solution Analysis */}
-                <div className="relative flex flex-col items-center">
-                  <div className="mb-6 relative">
-                    <div className="absolute -inset-2 rounded-full bg-zinc-100 dark:bg-zinc-800"></div>
-                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700 shadow-sm">
-                      <span className="text-2xl font-bold">3</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                    <LineChart className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />
-                  </div>
-                  
-                  <h3 className="text-2xl font-geist-sans font-bold mb-3 text-center">Solutions That Make Sense</h3>
-                  
-                  <p className="font-geist-sans text-muted-foreground text-center">See every step, not just the answer. Finally understand what markers want.</p>
-                  
-                  <div className="mt-6 inline-flex items-center text-sm font-medium text-primary">
-                    <span>HSC marker-approved techniques</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Horizontal connector lines - visible on desktop only */}
-              <div className="hidden md:block absolute top-[3.5rem] left-1/6 right-1/6 h-0.5 bg-zinc-200 dark:bg-zinc-700">
-                <div className="absolute left-0 right-0 top-0 bottom-0"></div>
-              </div>
-            </div>
-
-            <div className="mt-20 mx-auto max-w-3xl">
-              <div className="relative overflow-hidden rounded-2xl border p-1">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 animate-pulse"></div>
-                <div className="relative rounded-xl bg-card p-6 shadow-sm">
-                  <div className="flex flex-col md:flex-row gap-4 items-center">
-                    <div className="flex-shrink-0 p-2 rounded-full bg-primary/10">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 2v8"></path><path d="m4.93 10.93 1.41 1.41"></path><path d="M2 18h2"></path><path d="M20 18h2"></path><path d="m19.07 10.93-1.41 1.41"></path><path d="M22 22H2"></path><path d="m16 6-4 4-4-4"></path><path d="M16 18a4 4 0 0 0-8 0"></path></svg>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-geist-sans font-bold">Ready to transform your HSC maths performance?</h4>
-                      <p className="text-muted-foreground font-geist-sans mt-1">This formula has helped over 5,000 students achieve Band 5 and 6 results. It can work for you too.</p>
-                    </div>
-                    <div className="flex-shrink-0 ml-auto">
-                      <Button
-                        asChild
-                        size="sm"
-                        className="rounded-xl px-4">
-                        <Link href="/waitlist">
-                          <span>Join Waitlist</span>
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <Features />
-
-        {/* Visual Features Section with Image */}
-        <section className="py-16 md:py-32">
-          <div className="mx-auto max-w-6xl space-y-12 px-6">
-            <div className="relative z-10 grid items-center gap-4 md:grid-cols-2 md:gap-12">
-              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">Why This Isn't Just Another Boring Maths Site</h2>
-              <p className="max-w-sm font-geist-sans sm:ml-auto">Every single syllabus dot point, covered. No gaps, no surprises.</p>
-            </div>
-            <div className="relative rounded-3xl p-3 md:-mx-8">
-              <div className="aspect-video relative overflow-hidden rounded-xl border">
-                <div className="bg-linear-to-t z-1 from-background absolute inset-0 to-transparent"></div>
-                <img 
-                  src="/SCR-20250501-izle.png"
-                  className="object-cover w-full h-full" 
-                  alt="Student using HSC Math study materials on a tablet" 
-                />
-              </div>
-            </div>
-            <div className="relative mx-auto grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-8 lg:grid-cols-4">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="size-4 text-primary" />
-                  <h3 className="font-geist-sans text-sm font-medium">Complete Materials</h3>
-                </div>
-                <p className="text-muted-foreground font-geist-sans text-sm">Comprehensive coverage of every syllabus dot point for all maths levels.</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <LineChart className="size-4 text-primary" />
-                  <h3 className="font-geist-sans text-sm font-medium">Progress Tracking</h3>
-                </div>
-                <p className="text-muted-foreground font-geist-sans text-sm">Track your glow-up with stats and charts. See your progress, flex your wins.</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Target className="size-4 text-primary" />
-                  <h3 className="font-geist-sans text-sm font-medium">Targeted Practice</h3>
-                </div>
-                <p className="text-muted-foreground font-geist-sans text-sm">Target your weak spots. Get better where it actually matters.</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Clock className="size-4 text-primary" />
-                  <h3 className="font-geist-sans text-sm font-medium">Time Management</h3>
-                </div>
-                <p className="text-muted-foreground font-geist-sans text-sm">Timed practice = exam confidence. No more running out of time.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* AI Chat Solution Feature */}
-        <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
-          <div className="@container mx-auto max-w-6xl px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">Stuck? Our AI Is Your 2am Maths Lifeline</h2>
-              <p className="mt-4 font-geist-sans text-lg text-muted-foreground mx-auto max-w-2xl">Ask anything, get step-by-step help, and never feel lost again.</p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="rounded-xl overflow-hidden border shadow-lg">
-                <img 
-                  src="SCR-20250501-jdor.png"
-                  className="w-full h-auto"
-                  alt="Student using AI chat to solve math problems" 
-                />
-              </div>
-              
-              <div className="space-y-6">
-                <div className="bg-primary/5 p-6 rounded-xl border">
-                  <h3 className="font-geist-sans text-2xl font-bold">Breakthrough AI Technology That Makes Maths "Click"</h3>
-                  <p className="mt-3 font-geist-sans">Our revolutionary AI doesn't just give you answers - it explains each step in detail so you truly understand the solution process.</p>
-                  
-                  <ul className="mt-6 space-y-4">
-                    <li className="flex items-start gap-3">
-                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 mt-0.5">
-                        <Check className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-geist-sans font-medium">Prompt Library, No Overthinking</p>
-                        <p className="text-sm text-muted-foreground font-geist-sans">One tap = "Why is this better?" or "What's the trick here?"</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 mt-0.5">
-                        <Check className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-geist-sans font-medium">Explains in Your Language</p>
-                        <p className="text-sm text-muted-foreground font-geist-sans">Arabic, Chinese, French, German, Italian, and more. No Google Translate needed.</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 mt-0.5">
-                        <Check className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-geist-sans font-medium">Step-by-Step, No Spoilers</p>
-                        <p className="text-sm text-muted-foreground font-geist-sans">Reveal one step at a time, just like a real tutor (but way faster).</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div className="bg-card p-6 rounded-xl border">
-                  <h4 className="font-geist-sans text-xl font-bold">The Secret Weapon of Top HSC Students</h4>
-                  <p className="mt-2 font-geist-sans text-muted-foreground italic">
-                    "Asking the AI why a particular approach works or to explain a key insight is like having a maths tutor available at 2am before my exam. It helped me truly understand concepts instead of just memorising procedures."
-                  </p>
-                  <p className="mt-2 font-geist-sans text-sm">— Daniel K., Band 6 Mathematics Extension 2</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Step-by-Step Solution Showcase */}
-        <section className="py-16 md:py-32">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">See Exactly How It's Done</h2>
-              <p className="mt-4 font-geist-sans text-lg text-muted-foreground mx-auto max-w-2xl">
-                Our interactive step-by-step solution system breaks down complex problems into digestible pieces, helping you build true understanding
-              </p>
-            </div>
-            
-            <div className="grid lg:grid-cols-7 gap-6 items-start">
-              <div className="lg:col-span-3 space-y-6">
-                <div className="rounded-xl border bg-card overflow-hidden">
-                  <div className="bg-muted p-3 border-b flex items-center">
-                    <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">3</div>
-                    <h3 className="ml-2 font-geist-sans font-medium">Step Revealed</h3>
-                  </div>
-                  <div className="p-5 space-y-4">
-                    <p className="font-geist-sans font-medium">Question 1</p>
-                    <p className="font-geist-sans">The question asks for the equation of the graph of y = sin<sup>-1</sup> function.</p>
-                    <p className="font-geist-sans">Testing a point on the graph where x = 0.5, we get y = 3π/2</p>
-                    <p className="font-geist-sans">Let's try answer choice D: y = 3sin<sup>-1</sup>(2x-1)</p>
-                    <p className="font-geist-sans">When x = 0.5:</p>
-                    <p className="font-geist-sans">y = 3sin<sup>-1</sup>(2 × 0.5) = 3sin<sup>-1</sup>(1) = 3sin<sup>-1</sup>(1) = 3 × π/2 = 3π/2</p>
-                    <p className="font-geist-sans">Therefore, the answer is (D) y = 3sin<sup>-1</sup>(2x-1)</p>
-                    <div className="mt-8 flex items-center">
-                      <div className="h-10 w-10 rounded-full flex items-center justify-center border">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                      </div>
-                      <p className="ml-3 font-geist-sans text-sm text-muted-foreground">Questions about this step</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="lg:col-span-4 space-y-6">
-                <div className="rounded-xl border bg-card overflow-hidden">
-                  <div className="p-5 space-y-3">
-                    <h3 className="font-geist-sans font-medium text-xl">One-Click Understanding</h3>
-                    <p className="font-geist-sans text-muted-foreground">
-                      Not just solutions – but true comprehension. Our intelligent prompts help you dig deeper into each concept.
-                    </p>
-                    
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="rounded-lg border bg-background p-3">
-                        <p className="font-geist-sans text-sm font-medium">Can you explain this step in simpler terms?</p>
-                      </div>
-                      <div className="rounded-lg border bg-background p-3">
-                        <p className="font-geist-sans text-sm font-medium">Why is this approach better than other methods?</p>
-                      </div>
-                      <div className="rounded-lg border bg-background p-3">
-                        <p className="font-geist-sans text-sm font-medium">How does this relate to the HSC syllabus?</p>
-                      </div>
-                      <div className="rounded-lg border bg-background p-3">
-                        <p className="font-geist-sans text-sm font-medium">What formula is being used here?</p>
-                      </div>
-                      <div className="rounded-lg border bg-background p-3">
-                        <p className="font-geist-sans text-sm font-medium">Can I use this technique in other questions?</p>
-                      </div>
-                      <div className="rounded-lg border bg-background p-3">
-                        <p className="font-geist-sans text-sm font-medium">What's the key insight in this step?</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="rounded-xl border bg-card p-5 overflow-hidden space-y-3">
-                  <h3 className="font-geist-sans font-medium text-xl">Multilingual Explanations</h3>
-                  <p className="font-geist-sans text-muted-foreground">
-                    Break through language barriers. Get crystal-clear explanations in your preferred language.
-                  </p>
-                  
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    <div className="rounded-lg border bg-background p-3">
-                      <p className="font-geist-sans text-sm font-medium">What's the most important thing to remember here?</p>
-                    </div>
-                    <div className="rounded-lg border bg-background p-3">
-                      <p className="font-geist-sans text-sm font-medium">Explain to me in Arabic</p>
-                    </div>
-                    <div className="rounded-lg border bg-background p-3">
-                      <p className="font-geist-sans text-sm font-medium">Explain to me in Chinese</p>
-                    </div>
-                    <div className="rounded-lg border bg-background p-3">
-                      <p className="font-geist-sans text-sm font-medium">Explain to me in French</p>
-                    </div>
-                    <div className="rounded-lg border bg-background p-3">
-                      <p className="font-geist-sans text-sm font-medium">Explain to me in German</p>
-                    </div>
-                    <div className="rounded-lg border bg-background p-3">
-                      <p className="font-geist-sans text-sm font-medium">Explain to me in Italian</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <div className="flex justify-between">
-                      <div className="font-geist-sans text-sm text-muted-foreground">Step 3 of 43</div>
-                      <Button variant="default" size="sm" className="rounded-lg">
-                        Join Waitlist <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Why Our Approach Works Section */}
-        <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
-          <div className="@container mx-auto max-w-5xl px-6">
-            <div className="text-center">
-              <h2 className="text-balance font-geist-sans text-4xl font-bold lg:text-5xl">Why Our Approach Works When Others Fail</h2>
-              <p className="mt-4 font-geist-sans">The NSW Education Standards Authority (NESA) doesn't test your ability to memorise formulas – they test your ability to apply concepts under pressure.</p>
-            </div>
-            
-            <div className="mt-12 rounded-xl border bg-card p-8">
-              <h3 className="text-2xl font-bold">Our practice papers are meticulously crafted to simulate real HSC exam conditions:</h3>
-              
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {/* Essential */}
+            <motion.div variants={itemVariant} whileHover={{ y: -8, boxShadow: "0 20px 40px -10px rgba(0,0,0,0.1)" }} className="pricing-card">
+              <div className="pricing-plan-name">Essential</div>
+              <div className="pricing-price">$12 <span>/ month</span></div>
+              <p className="pricing-descriptor">Everything you need to practise properly.</p>
+              <hr className="pricing-divider" />
+              <ul className="pricing-features">
                 {[
-                  "Precisely calibrated difficulty progression",
-                  "Question formats that mirror actual exam patterns",
-                  "Coverage of all syllabus dot points",
-                  "Step-by-step solutions that reveal examiner thinking"
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <div className="h-3 w-3 rounded-full bg-primary"></div>
-                    </div>
-                    <p className="text-lg font-medium">{feature}</p>
-                  </div>
+                  'Unlimited access to all practice papers',
+                  'Full worked solutions for every question',
+                  'Practice by topic — all subjects',
+                  'Weak areas tracking',
+                  'Self-marking tools',
+                ].map((f) => (
+                  <li key={f}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="7.5" stroke="#18181B" strokeWidth="1" />
+                      <path d="M5 8l2 2 4-4" stroke="#18181B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {f}
+                  </li>
                 ))}
-              </div>
-            </div>
-          </div>
-        </section>
+              </ul>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link href="/beta" className="btn-outline">Join the beta</Link>
+              </motion.div>
+            </motion.div>
 
-        {/* What Makes Us Different */}
-        <section className="py-16 md:py-32">
-          <div className="mx-auto max-w-6xl space-y-8 px-6 md:space-y-16">
-            <div className="relative z-10 mx-auto max-w-xl space-y-6 text-center md:space-y-12">
-              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">What Makes Us Different</h2>
-              <p className="font-geist-sans">Unlike generic maths resources, our platform was built specifically for HSC Mathematics students by high-achieving selective school students who topped HSC maths and current HSC markers.</p>
-            </div>
+            {/* Smart */}
+            <motion.div variants={itemVariant} whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)" }} className="pricing-card recommended">
+              <div className="pricing-recommended-badge">Recommended</div>
+              <div className="pricing-plan-name">Smart</div>
+              <div className="pricing-price">$22 <span>/ month</span></div>
+              <p className="pricing-descriptor">For students chasing Band 6 — and who mean it.</p>
+              <hr className="pricing-divider" />
+              <ul className="pricing-features">
+                {[
+                  'Everything in Essential',
+                  'AI-powered question explanations',
+                  'Personalised mock exam generator',
+                  'Step-by-step AI tutor on any solution',
+                ].map((f) => (
+                  <li key={f}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="7.5" stroke="#18181B" strokeWidth="1" />
+                      <path d="M5 8l2 2 4-4" stroke="#18181B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link href="/beta" className="btn-dark">Join the beta</Link>
+              </motion.div>
+            </motion.div>
 
-            <div className="mt-12 overflow-hidden rounded-xl border">
-              <div className="grid md:grid-cols-2">
-                <div className="bg-muted p-8">
-                  <h3 className="text-center font-geist-sans text-xl font-bold">Regular Resources</h3>
-                  <ul className="mt-6 space-y-4">
-                    {[
-                      "Generic practice questions",
-                      "Basic workings",
-                      "Limited practice options",
-                      "Static PDF documents",
-                      "No personalisation"
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <X className="h-5 w-5 text-destructive" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="bg-card p-8">
-                  <h3 className="text-center font-geist-sans text-xl font-bold">Our Platform</h3>
-                  <ul className="mt-6 space-y-4">
-                    {[
-                      "HSC-specific exam questions",
-                      "Detailed step-by-step solutions",
-                      "Unlimited practice materials",
-                      "Interactive digital experience",
-                      "Targeted by difficulty and topic"
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-primary" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+          </motion.div>
+          <motion.p variants={itemVariant} className="pricing-fine-print">Pricing applies after the beta period. Beta access is free with no credit card required.</motion.p>
+        </motion.div>
+      </section>
 
-        {/* Testimonials Section */}
-        <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
-          <div className="mx-auto max-w-6xl space-y-8 px-6 md:space-y-16">
-            <div className="relative z-10 mx-auto max-w-xl space-y-6 text-center md:space-y-12">
-              <h2 className="font-geist-sans text-4xl font-bold lg:text-5xl">Real Students. Real Glow-Ups.</h2>
-              <p className="font-geist-sans text-muted-foreground">Screenshots of Band 6 DMs not included (but we have them).</p>
-            </div>
+      {/* SECTION 8 — EMOTIONAL CLOSE */}
+      <section className="close-section">
+        {/* Exam hall background */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/examhall.jpeg"
+          alt=""
+          aria-hidden="true"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.38, zIndex: 0 }}
+        />
+        {/* Dark overlay so text stays readable */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to bottom, rgba(9,9,11,0.45) 0%, rgba(9,9,11,0.65) 100%)' }} />
+        <motion.div
+          style={{
+            position: 'absolute', inset: 0, zIndex: 0,
+            background: 'radial-gradient(ellipse at 50% 60%, rgba(99,102,241,0.15) 0%, transparent 65%)',
+            pointerEvents: 'none',
+          }}
+          animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.08, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="close-inner"
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.span variants={itemVariant} style={{ display: 'inline-block', fontSize: '13px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(167,139,250,0.9)', marginBottom: '16px' }}>Beta — limited spots</motion.span>
+          <motion.h2 variants={itemVariant} className="close-headline">Be one of the first students to use it.</motion.h2>
+          <motion.p variants={itemVariant} className="close-body">We're opening PracticePapers.io to a small group of HSC students before the full launch. You'll get early access to every feature — and your feedback shapes what we build next. The exam hall is waiting. Get in before everyone else does.</motion.p>
+          <motion.div variants={itemVariant}>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ display: 'inline-block' }}>
+              <Link href="/beta" className="btn-white">Join the beta — claim your spot</Link>
+            </motion.div>
+            <p className="close-micro">Free during beta. No credit card needed.</p>
+          </motion.div>
+        </motion.div>
+      </section>
 
-            <div className="grid gap-4 [--color-card:var(--color-muted)] *:border-none *:shadow-none sm:grid-cols-2 md:grid-cols-4 lg:grid-rows-2 dark:[--color-muted:var(--color-zinc-900)]">
-              <Card className="grid grid-rows-[auto_1fr] gap-8 sm:col-span-2 sm:p-6 lg:row-span-2">
-                <CardHeader>
-                  <div className="flex items-center justify-center">
-                    <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-                      Band 6 Result
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans text-xl font-medium">"I was literally failing, now I'm flexing my 89/100. These papers showed me what I was missing. Walked into the HSC feeling like a boss."</p>
+      {/* SECTION 9 — FOOTER */}
+      < footer className="footer" >
+        <div className="footer-inner">
+          <Link href="/" className="footer-logo">PracticePapers.io</Link>
+          <ul className="footer-links">
+            <li><Link href="#how-it-works">How it works</Link></li>
+            <li><Link href="#pricing">Pricing</Link></li>
+            <li><Link href="/beta">Join beta</Link></li>
+            <li><Link href="/privacy">Privacy policy</Link></li>
+          </ul>
+          <span className="footer-copy">© {YEAR} PracticePapers.io</span>
+        </div>
+      </footer >
 
-                    <div className="grid grid-cols-[auto_1fr] items-center gap-3">
-                      <Avatar className="size-12">
-                        <AvatarImage src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" alt="James L." />
-                        <AvatarFallback>JL</AvatarFallback>
-                      </Avatar>
-
-                      <div>
-                        <cite className="font-geist-sans text-sm font-medium">James L.</cite>
-                        <span className="text-muted-foreground font-geist-sans block text-sm">Sydney Grammar</span>
-                      </div>
-                    </div>
-                  </blockquote>
-                </CardContent>
-              </Card>
-              
-              <Card className="md:col-span-2">
-                <CardContent className="h-full pt-6">
-                  <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans text-xl font-medium">"The questions were so close to the real HSC, it was almost scary. I felt like I'd already done the exam!"</p>
-
-                    <div className="grid grid-cols-[auto_1fr] items-center gap-3">
-                      <Avatar className="size-12">
-                        <AvatarImage src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Sarah T." />
-                        <AvatarFallback>ST</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <cite className="font-geist-sans text-sm font-medium">Sarah T.</cite>
-                        <span className="text-muted-foreground font-geist-sans block text-sm">Band 6 Mathematics Advanced</span>
-                      </div>
-                    </div>
-                  </blockquote>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="h-full pt-6">
-                  <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans">"Three weeks in and maths finally made sense. I stopped memorising, started understanding, and my marks shot up."</p>
-
-                    <div className="grid items-center gap-3 [grid-template-columns:auto_1fr]">
-                      <Avatar className="size-12">
-                        <AvatarImage src="https://images.unsplash.com/photo-1463453091185-61582044d556?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Michael R." />
-                        <AvatarFallback>MR</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <cite className="font-geist-sans text-sm font-medium">Michael R.</cite>
-                        <span className="text-muted-foreground font-geist-sans block text-sm">Band 5 Mathematics Extension 1</span>
-                      </div>
-                    </div>
-                  </blockquote>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="h-full pt-6">
-                  <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
-                    <p className="font-geist-sans">"The step-by-step breakdowns showed me exactly where I was going wrong. Fixed my mistakes, levelled up fast."</p>
-
-                    <div className="grid grid-cols-[auto_1fr] gap-3">
-                      <Avatar className="size-12">
-                        <AvatarImage src="https://images.unsplash.com/photo-1499887142886-791eca5918cd?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Emily W." />
-                        <AvatarFallback>EW</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-geist-sans text-sm font-medium">Emily W.</p>
-                        <span className="text-muted-foreground font-geist-sans block text-sm">North Sydney Girls High</span>
-                      </div>
-                    </div>
-                  </blockquote>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="relative overflow-hidden py-16 md:py-32">
-          <div className="absolute inset-0 -z-10 bg-primary"></div>
-          <div className="pointer-events-none absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.08),rgba(255,255,255,0))]"></div>
-          
-          <div className="mx-auto max-w-6xl px-6 text-primary-foreground">
-            <div className="mx-auto max-w-5xl">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center rounded-full bg-primary-foreground/10 px-4 py-1.5">
-                  <Clock className="mr-2 h-4" />
-                  <span className="font-geist-sans text-sm font-medium">Time-Sensitive Opportunity</span>
-                </div>
-                
-                <h2 className="mt-6 text-balance font-geist-sans text-4xl font-bold lg:text-5xl">
-                  Your HSC is coming. Don't let maths be the reason you miss your dream ATAR.
-                </h2>
-                
-                <div className="mt-12 rounded-xl bg-primary-foreground/10 p-8">
-                  <h3 className="font-geist-sans text-2xl font-bold">Limited-Time Premium Access Includes:</h3>
-                  
-                  <ul className="mt-6 space-y-4">
-                    {[
-                      "Comprehensive practice papers for all maths levels",
-                      "Extension 1 & 2 specialised materials",
-                      "Unlimited downloads and access",
-                      "Ask AI how to solve any question",
-                      "Priority support from our team of tutors"
-                    ].map((feature, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <Check className="h-5 w-5" />
-                        <span className="font-geist-sans text-lg">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA Section */}
-        <section id="browse-papers" className="py-16 md:py-32">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="mx-auto max-w-5xl rounded-3xl border bg-card px-6 py-12 shadow-lg md:py-20">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center rounded-full bg-primary/10 px-4 py-1.5">
-                  <Clock className="mr-2 h-4 w-4 text-primary" />
-                  <span className="font-geist-sans text-sm font-medium text-primary">Limited Time Offer</span>
-                </div>
-                
-                <h2 className="mt-6 text-balance font-geist-sans text-4xl font-bold lg:text-5xl">
-                  Transform Your HSC Mathematics Performance Today
-                </h2>
-                
-                <p className="mx-auto mt-6 max-w-2xl font-geist-sans text-lg text-muted-foreground">
-                  Join thousands of successful students who went from maths anxiety to Band 6 results with our proven system
-                </p>
-                
-                <div className="mt-10 grid w-full gap-8 md:grid-cols-2">
-                  <div className="rounded-xl border bg-muted p-6">
-                    <h3 className="font-geist-sans text-xl font-semibold">Continue with traditional study methods</h3>
-                    <ul className="mt-4 space-y-2">
-                      <li className="flex items-start gap-2">
-                        <X className="mt-1 h-4 w-4 text-destructive" />
-                        <span className="font-geist-sans">Feel overwhelmed by complex concepts</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <X className="mt-1 h-4 w-4 text-destructive" />
-                        <span className="font-geist-sans">Waste time on inefficient practice</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <X className="mt-1 h-4 w-4 text-destructive" />
-                        <span className="font-geist-sans">Develop false confidence that shatters in exams</span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="rounded-xl border bg-primary/10 p-6">
-                    <h3 className="font-geist-sans text-xl font-semibold">Use our proven HSC Maths system</h3>
-                    <ul className="mt-4 space-y-2">
-                      <li className="flex items-start gap-2">
-                        <Check className="mt-1 h-4 w-4 text-primary" />
-                        <span className="font-geist-sans">Master concepts through targeted practice</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Check className="mt-1 h-4 w-4 text-primary" />
-                        <span className="font-geist-sans">Build genuine confidence through understanding</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Check className="mt-1 h-4 w-4 text-primary" />
-                        <span className="font-geist-sans">Walk into your HSC exam fully prepared</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <div className="mt-12 flex flex-wrap justify-center gap-4">
-                  <Button asChild size="lg" className="rounded-xl px-5 text-base">
-                    <Link href="/waitlist">
-                      <span>Get My Free Practice Papers</span>
-                    </Link>
-                  </Button>
-                  
-                  <Button asChild size="lg" variant="outline" className="rounded-xl px-5 text-base">
-                    <Link href="#problem">
-                      <span>Learn More</span>
-                    </Link>
-                  </Button>
-                </div>
-                
-                <div className="mt-4 flex items-center justify-center space-x-1">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium">No credit card required</span> • Instant access to sample papers
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>  
-      </main>
     </>
-  )
+  );
 }

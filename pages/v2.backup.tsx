@@ -1,28 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { motion, useScroll, useTransform, Variants, useInView, useMotionValue, animate } from 'motion/react';
-
-// Animated counter component
-function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const motionVal = useMotionValue(0);
-  const inView = useInView(ref, { once: true });
-  useEffect(() => {
-    if (!inView) return;
-    const controls = animate(motionVal, to, {
-      duration: 1.5,
-      ease: 'easeOut',
-      onUpdate: (v) => {
-        if (ref.current) ref.current.textContent = Math.round(v) + suffix;
-      },
-    });
-    return controls.stop;
-  }, [inView, motionVal, to, suffix]);
-  return <span ref={ref}>0{suffix}</span>;
-}
+import { motion, useScroll, useTransform, Variants } from 'motion/react';
 
 const containerVariant: Variants = {
   hidden: { opacity: 0 },
@@ -54,9 +35,6 @@ export default function V2() {
   const y1 = useTransform(scrollYProgress, [0.1, 0.4], [50, -50]);
   const y2 = useTransform(scrollYProgress, [0.3, 0.6], [50, -50]);
   const y3 = useTransform(scrollYProgress, [0.5, 0.8], [50, -50]);
-
-  // Parallax for pain section image
-  const painImageY = useTransform(scrollYProgress, [0.05, 0.25], [30, -30]);
 
   return (
     <>
@@ -217,31 +195,9 @@ export default function V2() {
           }
           .btn-link:hover { color: #09090B; }
           .hero-proof {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-          }
-          .hero-proof-label {
-            font-size: 11px;
-            color: #A1A1AA;
-            letter-spacing: 0.01em;
-            margin-right: 2px;
-          }
-          .course-badge {
-            font-size: 11px;
-            font-weight: 500;
-            color: #52525B;
-            background: rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.08);
-            padding: 3px 10px;
-            border-radius: 20px;
-            white-space: nowrap;
-          }
-          .hero-reassurance {
             font-size: 12px;
             color: #A1A1AA;
-            margin-top: 10px;
+            letter-spacing: 0.01em;
           }
 
           /* NOTEBOOK MOCKUP RE-DESIGN */
@@ -252,7 +208,7 @@ export default function V2() {
             transform: translate(-50%, -50%);
             width: 120%;
             height: 120%;
-            background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.12) 0%, rgba(139, 92, 246, 0.07) 40%, rgba(250, 249, 246, 0) 70%);
+            background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.15) 0%, rgba(37, 99, 235, 0.1) 40%, rgba(250, 249, 246, 0) 70%);
             filter: blur(40px);
             z-index: 0;
             animation: pulseGlow 8s ease-in-out infinite alternate;
@@ -721,6 +677,10 @@ export default function V2() {
             border-radius: 16px;
             padding: 28px 32px;
           }
+          .testimonial-card.imessage {
+            background: #E8F4FE;
+            border-color: rgba(0, 122, 255, 0.15);
+          }
           .testimonial-text {
             font-size: 15px;
             color: #18181B;
@@ -1065,14 +1025,7 @@ export default function V2() {
                 <Link href="#pain" className="btn-link">See how it works ↓</Link>
               </motion.div>
             </motion.div>
-            <motion.p variants={itemVariant} className="hero-reassurance">No credit card required · 7-day free trial · Cancel any time</motion.p>
-            <motion.div variants={itemVariant} className="hero-proof">
-              <span className="hero-proof-label">Covers</span>
-              <span className="course-badge">Standard</span>
-              <span className="course-badge">Advanced</span>
-              <span className="course-badge">Extension 1</span>
-              <span className="course-badge">Extension 2</span>
-            </motion.div>
+            <motion.p variants={itemVariant} className="hero-proof">Used by students preparing for Advanced, Extension 1, and Extension 2</motion.p>
           </motion.div>
 
           <motion.div
@@ -1112,8 +1065,8 @@ export default function V2() {
                         strokeWidth="4"
                         strokeLinecap="round"
                         initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: [0, 1, 1, 0], opacity: [0, 1, 1, 0] }}
-                        transition={{ duration: 9, delay: 1, times: [0, 0.08, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 1, ease: 'easeOut' }}
                       />
                       <motion.path
                         d="M 190 15 Q 150 35, 90 15 T 30 25 T 10 15"
@@ -1122,16 +1075,17 @@ export default function V2() {
                         strokeWidth="4"
                         strokeLinecap="round"
                         initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: [0, 1, 1, 0], opacity: [0, 1, 1, 0] }}
-                        transition={{ duration: 9, delay: 1.4, times: [0, 0.07, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 1.4, ease: 'easeOut' }}
                       />
                     </motion.svg>
 
                     {/* The correction markup */}
                     <motion.div
                       style={{ position: 'absolute', right: '40px', top: '8px', color: '#DC2626', fontSize: '16px', fontWeight: 'bold', zIndex: 3 }}
-                      animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 0.8], rotate: -15 }}
-                      transition={{ duration: 9, delay: 1.8, times: [0, 0.05, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                      initial={{ opacity: 0, scale: 0.8, rotate: -15 }}
+                      animate={{ opacity: 1, scale: 1, rotate: -15 }}
+                      transition={{ duration: 0.3, delay: 1.8 }}
                     >
                       Product Rule!
                     </motion.div>
@@ -1139,26 +1093,26 @@ export default function V2() {
 
                   <motion.div
                     className="handwritten-line"
-                    style={{ marginTop: '16px', color: '#059669' }}
-                    animate={{ opacity: [0, 1, 1, 0] }}
-                    transition={{ duration: 9, delay: 2.5, times: [0, 0.07, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                    style={{ marginTop: '16px', color: '#059669', opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 2.5 }}
                   >
                     f'(x) = x²(cos x) + 2x(sin x)
                   </motion.div>
                   <motion.div
                     className="handwritten-line"
-                    style={{ color: '#059669' }}
-                    animate={{ opacity: [0, 1, 1, 0] }}
-                    transition={{ duration: 9, delay: 3, times: [0, 0.07, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                    style={{ color: '#059669', opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 3 }}
                   >
                     f'(x) = x(x cos x + 2 sin x)
                   </motion.div>
 
-                  {/* Checkmark */}
+                  {/* Plus checkmark or note */}
                   <motion.div
-                    style={{ position: 'absolute', bottom: '60px', right: '40px', color: '#059669' }}
-                    animate={{ opacity: [0, 0.8, 0.8, 0] }}
-                    transition={{ duration: 9, delay: 3.8, times: [0, 0.06, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                    style={{ position: 'absolute', bottom: '60px', right: '40px', color: '#059669', opacity: 0 }}
+                    animate={{ opacity: 0.8 }}
+                    transition={{ duration: 0.4, delay: 3.8 }}
                   >
                     <svg width="60" height="60" viewBox="0 0 100 100" fill="none">
                       <motion.path
@@ -1167,16 +1121,18 @@ export default function V2() {
                         strokeWidth="8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        animate={{ pathLength: [0, 1, 1, 0] }}
-                        transition={{ duration: 9, delay: 3.8, times: [0, 0.06, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.5, delay: 3.8, ease: "easeOut" }}
                       />
                       <motion.circle
                         cx="50" cy="50" r="45"
                         stroke="#059669"
                         strokeWidth="4"
                         strokeDasharray="10 10"
-                        animate={{ opacity: [0, 0.5, 0.5, 0] }}
-                        transition={{ duration: 9, delay: 4.2, times: [0, 0.06, 0.8, 1], repeat: Infinity, repeatDelay: 0 }}
+                        initial={{ rotate: -90, opacity: 0 }}
+                        animate={{ rotate: 0, opacity: 0.5 }}
+                        transition={{ duration: 1, delay: 4.2 }}
                       />
                     </svg>
                   </motion.div>
@@ -1208,7 +1164,7 @@ export default function V2() {
             </motion.div>
           </motion.div>
 
-          <motion.div variants={itemVariant} className="pain-image-wrapper" style={{ y: painImageY }}>
+          <motion.div variants={itemVariant} className="pain-image-wrapper">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pp-image1.png" alt="Maths practice notes with Casio calculator" />
           </motion.div>
@@ -1224,20 +1180,20 @@ export default function V2() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          <motion.div variants={containerVariant}>
-            <motion.span variants={itemVariant} className="agitate-col-label">The fake study trap</motion.span>
-            <motion.h3 variants={itemVariant} className="agitate-col-headline">Re-reading your solutions isn't maths practice.</motion.h3>
-            <motion.p variants={itemVariant} className="agitate-col-body">Following someone else's working feels like understanding. It isn't. You won't know if you can actually do a proof or a differentiation question until you close the notes and try.</motion.p>
+          <motion.div variants={itemVariant}>
+            <span className="agitate-col-label">The fake study trap</span>
+            <h3 className="agitate-col-headline">Re-reading your solutions isn't maths practice.</h3>
+            <p className="agitate-col-body">Following someone else's working feels like understanding. It isn't. You won't know if you can actually do a proof or a differentiation question until you close the notes and try.</p>
           </motion.div>
-          <motion.div variants={containerVariant}>
-            <motion.span variants={itemVariant} className="agitate-col-label">The scattered practice problem</motion.span>
-            <motion.h3 variants={itemVariant} className="agitate-col-headline">Random questions don't fix weak topics.</motion.h3>
-            <motion.p variants={itemVariant} className="agitate-col-body">If Integration by substitution keeps costing you marks, doing a mix of random questions won't fix it. You need to drill that topic — across Advanced, Extension 1, and Extension 2 papers — until it's solid.</motion.p>
+          <motion.div variants={itemVariant}>
+            <span className="agitate-col-label">The scattered practice problem</span>
+            <h3 className="agitate-col-headline">Random questions don't fix weak topics.</h3>
+            <p className="agitate-col-body">If Integration by substitution keeps costing you marks, doing a mix of random questions won't fix it. You need to drill that topic — across Advanced, Extension 1, and Extension 2 papers — until it's solid.</p>
           </motion.div>
-          <motion.div variants={containerVariant}>
-            <motion.span variants={itemVariant} className="agitate-col-label">The trial week panic</motion.span>
-            <motion.h3 variants={itemVariant} className="agitate-col-headline">You can't cram maths.</motion.h3>
-            <motion.p variants={itemVariant} className="agitate-col-body">Complex Numbers, Proof by Induction, Volumes of Revolution — these topics take time to click. Students who improve don't do more the week before trials. They started earlier and practised more deliberately.</motion.p>
+          <motion.div variants={itemVariant}>
+            <span className="agitate-col-label">The trial week panic</span>
+            <h3 className="agitate-col-headline">You can't cram maths.</h3>
+            <p className="agitate-col-body">Complex Numbers, Proof by Induction, Volumes of Revolution — these topics take time to click. Students who improve don't do more the week before trials. They started earlier and practised more deliberately.</p>
           </motion.div>
         </motion.div>
       </section>
@@ -1338,7 +1294,7 @@ export default function V2() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
                         <div className="bento-title">Calculus Mastery</div>
-                        <div className="bento-value"><CountUp to={84} suffix="%" /></div>
+                        <div className="bento-value">84%</div>
                         <div className="bento-sub">Top 10% of state</div>
                       </div>
                       <svg width="48" height="48" viewBox="0 0 36 36">
@@ -1357,7 +1313,7 @@ export default function V2() {
 
                   <motion.div variants={itemVariant} className="bento-card" whileHover={{ y: -4, boxShadow: '0 8px 16px -6px rgba(0,0,0,0.05)' }}>
                     <div className="bento-title" style={{ color: '#0284C7' }}>Trigonometry</div>
-                    <div className="bento-value" style={{ fontSize: '18px' }}><CountUp to={142} /> / 160</div>
+                    <div className="bento-value" style={{ fontSize: '18px' }}>142 / 160</div>
                     <div className="bento-sub">Questions completed</div>
                     <div style={{ marginTop: '8px', height: '3px', background: 'rgba(2, 132, 199, 0.1)', borderRadius: '2px', overflow: 'hidden' }}>
                       <motion.div
@@ -1371,7 +1327,7 @@ export default function V2() {
 
                   <motion.div variants={itemVariant} className="bento-card" whileHover={{ y: -4, boxShadow: '0 8px 16px -6px rgba(0,0,0,0.05)' }}>
                     <div className="bento-title" style={{ color: '#D97706' }}>Probability</div>
-                    <div className="bento-value" style={{ fontSize: '18px' }}><CountUp to={48} /> / 65</div>
+                    <div className="bento-value" style={{ fontSize: '18px' }}>48 / 65</div>
                     <div className="bento-sub">Questions completed</div>
                     <div style={{ marginTop: '8px', height: '3px', background: 'rgba(217, 119, 6, 0.1)', borderRadius: '2px', overflow: 'hidden' }}>
                       <motion.div
@@ -1385,6 +1341,7 @@ export default function V2() {
 
                 </motion.div>
 
+                <p className="screenshot-label">Premium glass Bento grid with animated progress rings representing mastery across topics</p>
               </div>
             </div>
           </motion.div>
@@ -1462,6 +1419,7 @@ export default function V2() {
                   </motion.div>
                 </motion.div>
 
+                <p className="screenshot-label">Premium glass layered cards showing a complex Maths question and its gracefully revealed worked solution</p>
               </div>
             </div>
           </motion.div>
@@ -1536,6 +1494,7 @@ export default function V2() {
                   ))}
                 </motion.div>
 
+                <p className="screenshot-label">Premium glass dashboard showcasing animated progress bars and soft neon accents for subject tracking</p>
               </div>
             </div>
           </motion.div>
@@ -1566,19 +1525,19 @@ export default function V2() {
             </motion.div>
 
             <motion.div variants={containerVariant} className="testimonials-grid">
-              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+              <motion.div variants={itemVariant} className="testimonial-card">
                 <p className="testimonial-text">"genuinely the most useful thing I've found for ext 2. doing questions by topic before trials changed everything."</p>
                 <div className="testimonial-author"><strong>Anika S.</strong> — Mathematics Extension 2</div>
               </motion.div>
-              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+              <motion.div variants={itemVariant} className="testimonial-card imessage">
                 <p className="testimonial-text">"I used to just re-read my notes for hours and wonder why I kept making the same mistakes. The weak areas feature literally showed me what I was doing. Kind of confronting but also exactly what I needed."</p>
                 <div className="testimonial-author"><strong>James T.</strong> — Mathematics Advanced</div>
               </motion.div>
-              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+              <motion.div variants={itemVariant} className="testimonial-card">
                 <p className="testimonial-text">"the solutions are actually good. like proper worked solutions not just 'x = 4'. i finally understand why the method works, not just what to write."</p>
                 <div className="testimonial-author"><strong>Priya M.</strong> — Mathematics Extension 1</div>
               </motion.div>
-              <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
+              <motion.div variants={itemVariant} className="testimonial-card">
                 <p className="testimonial-text">"my mum found this and I'm genuinely glad she did"</p>
                 <div className="testimonial-author"><strong>Ethan R.</strong> — Mathematics Standard</div>
               </motion.div>
@@ -1662,14 +1621,6 @@ export default function V2() {
 
       {/* SECTION 8 — EMOTIONAL CLOSE */}
       <section className="close-section">
-        <motion.div
-          style={{
-            position: 'absolute', inset: 0, zIndex: 0,
-            background: 'radial-gradient(ellipse at 50% 60%, rgba(99,102,241,0.18) 0%, transparent 65%)',
-          }}
-          animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.08, 1] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
         <motion.div
           className="close-inner"
           variants={containerVariant}
