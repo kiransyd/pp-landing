@@ -137,14 +137,13 @@ const ISAAC_STREAM: Array<{ t: string; f?: 'b' | 'i' | 'tr'; br?: boolean }> = [
   { t: 'is', f: 'tr' }, { t: 'on', f: 'tr' }, { t: 'top.', f: 'tr' },
 ];
 
-// Isaac animated chat panel — loops every ~12s showing a real conversation
+// Isaac animated chat panel — interactive on hover/scroll
 function IsaacAnimatedPanel() {
   const panelRef = useRef<HTMLDivElement>(null);
   const streamRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isInView = useInView(panelRef, { margin: "-100px" });
-  const [started, setStarted] = useState(false);
-  const [cycle, setCycle] = useState(0);
-  const [visible, setVisible] = useState(false);
+  const isInView = useInView(panelRef, { margin: "-100px", once: true });
+  const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [mood, setMood] = useState<'happy' | 'thinking' | 'talking'>('happy');
   const [showUserMsg, setShowUserMsg] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
@@ -152,14 +151,22 @@ function IsaacAnimatedPanel() {
   const [showPills, setShowPills] = useState(false);
 
   useEffect(() => {
-    if (isInView && !started) setStarted(true);
-  }, [isInView, started]);
+    if (isInView && !hasPlayedOnce) {
+      setHasPlayedOnce(true);
+      setIsPlaying(true);
+    }
+  }, [isInView, hasPlayedOnce]);
+
+  const handleMouseEnter = () => {
+    if (!isPlaying) {
+      setIsPlaying(true);
+    }
+  };
 
   useEffect(() => {
-    if (!started) return;
+    if (!isPlaying) return;
 
-    // Reset everything for new cycle
-    setVisible(true);
+    // Reset everything for playback
     setShowUserMsg(false);
     setShowResponse(false);
     setStreamCount(0);
@@ -184,14 +191,13 @@ function IsaacAnimatedPanel() {
             streamRef.current = null;
           }
         }, 70);
-      }, 3000),
-      // Streaming done (~7.2s) — back to happy
-      setTimeout(() => setMood('happy'), 8000),
+      }, 3500),
+      // Streaming done (~8.2s depending on tokens) — back to happy
+      setTimeout(() => setMood('happy'), 8500),
       // Language pills
-      setTimeout(() => setShowPills(true), 8500),
-      // Hold then fade out
-      setTimeout(() => setVisible(false), 10500),
-      setTimeout(() => setCycle(c => c + 1), 11500),
+      setTimeout(() => setShowPills(true), 9000),
+      // Finished playing, allow retrigger
+      setTimeout(() => setIsPlaying(false), 9500),
     ];
 
     return () => {
@@ -201,24 +207,36 @@ function IsaacAnimatedPanel() {
         streamRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, cycle]);
+  }, [isPlaying]);
 
   // Find the index of the first trap token for the divider
   const firstTrapIdx = ISAAC_STREAM.findIndex(tk => tk.f === 'tr');
 
   return (
-    <div ref={panelRef} style={{ minHeight: 440 }}>
-      <AnimatePresence mode="wait">
-        {visible && (
-          <motion.div
-            key={cycle}
-            className="isaac-panel"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.5, ease: 'easeOut' } }}
-            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-          >
+    <div ref={panelRef} style={{ minHeight: 440, cursor: isPlaying ? 'default' : 'pointer' }} onMouseEnter={handleMouseEnter} title={isPlaying ? "" : "Hover to replay simulation"}>
+      <motion.div
+        className="isaac-panel"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ 
+          opacity: 1, 
+          scale: 1,
+          boxShadow: mood === 'thinking' 
+            ? [
+                '0 0 0px 0px rgba(139,92,246,0), 0 30px 60px -15px rgba(0,0,0,0.12)', 
+                '0 0 0px 4px rgba(139,92,246,0.5), 0 20px 40px -10px rgba(139,92,246,0.3)', 
+                '0 0 0px 0px rgba(139,92,246,0), 0 30px 60px -15px rgba(0,0,0,0.12)'
+              ] 
+            : '0 0 0px 0px rgba(0,0,0,0), 0 30px 60px -15px rgba(0,0,0,0.12)',
+          borderColor: mood === 'thinking' 
+            ? ['rgba(0,0,0,0.06)', 'rgba(139,92,246,0.6)', 'rgba(0,0,0,0.06)'] 
+            : 'rgba(0,0,0,0.06)'
+        }}
+        transition={{ 
+          type: 'spring', stiffness: 420, damping: 32,
+          boxShadow: mood === 'thinking' ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.5 },
+          borderColor: mood === 'thinking' ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.5 }
+        }}
+      >
             {/* Header with animated face */}
             <div className="isaac-header">
               <IsaacFace mood={mood} />
@@ -301,8 +319,6 @@ function IsaacAnimatedPanel() {
               )}
             </AnimatePresence>
           </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -329,6 +345,151 @@ const itemVariant: Variants = {
 };
 
 const YEAR = new Date().getFullYear();
+
+// Animated demonstration of the Reveal Solution interaction
+function AnimatedSolutionDemo() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { margin: "-100px", once: true });
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  
+  useEffect(() => {
+    if (!isInView) return;
+    let isSubscribed = true;
+    
+    const runAnimation = async () => {
+      await new Promise(r => setTimeout(r, 1000));
+      if (!isSubscribed) return;
+
+      while (isSubscribed) {
+        setIsRevealed(false);
+        setIsClicked(false);
+        setIsHovered(false);
+        
+        await new Promise(r => setTimeout(r, 1500));
+        if (!isSubscribed) break;
+        
+        // Mouse moves to button (Hover state triggers)
+        setIsHovered(true);
+        await new Promise(r => setTimeout(r, 600));
+        if (!isSubscribed) break;
+        
+        // Mouse clicks
+        setIsClicked(true);
+        await new Promise(r => setTimeout(r, 150));
+        if (!isSubscribed) break;
+        
+        // Mouse releases click, button reveals solution
+        setIsClicked(false);
+        setIsHovered(false); // mouse moves away
+        setIsRevealed(true);
+        
+        // Wait some seconds reading the solution
+        await new Promise(r => setTimeout(r, 4500));
+      }
+    };
+    
+    runAnimation();
+    
+    return () => { isSubscribed = false; };
+  }, [isInView]);
+
+  return (
+    <motion.div 
+      ref={containerRef}
+      style={{ width: '100%', maxWidth: '340px', position: 'relative', zIndex: 1 }}
+      variants={containerVariant}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+    >
+      {/* The Question Card */}
+      <motion.div variants={itemVariant} style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)', marginBottom: '12px', position: 'relative' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: '#09090B', background: '#F4F4F5', padding: '4px 8px', borderRadius: '4px' }}>Question 14b</span>
+          <span style={{ fontSize: '11px', color: '#A1A1AA', fontWeight: 500 }}>4 marks</span>
+        </div>
+        <div style={{ fontSize: '12px', color: '#18181B', lineHeight: 1.6, marginBottom: '16px', fontWeight: 500 }}>
+          Find the exact area enclosed between the curves <br />
+          <span style={{ fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', fontSize: '14px' }}>y = x²</span> and <span style={{ fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', fontSize: '14px' }}>y = 4 − x²</span>.
+        </div>
+
+        <motion.div
+          animate={{ 
+            scale: isClicked ? 0.96 : (isHovered ? 1.02 : 1), 
+            backgroundColor: (isHovered || isClicked) ? '#27272A' : '#18181B' 
+          }}
+          transition={{ duration: 0.15 }}
+          style={{ width: '100%', color: '#fff', fontSize: '11px', fontWeight: 600, padding: '10px 0', borderRadius: '6px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"></path></svg>
+          Reveal Solution
+        </motion.div>
+        
+        {/* Animated Mouse Cursor */}
+        <AnimatePresence>
+          {!isRevealed && (
+            <motion.div
+              initial={{ x: 120, y: 150, opacity: 0 }}
+              animate={{ 
+                x: isHovered ? 0 : 120, 
+                y: isHovered ? 0 : 150, 
+                opacity: isHovered ? 1 : 0, 
+                scale: isClicked ? 0.85 : 1 
+              }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ 
+                x: { type: 'spring', damping: 20, stiffness: 100 },
+                y: { type: 'spring', damping: 20, stiffness: 100 },
+                opacity: { duration: 0.2 },
+                scale: { duration: 0.1 }
+              }}
+              style={{
+                position: 'absolute',
+                bottom: '10px',
+                right: '40%',
+                zIndex: 10,
+                pointerEvents: 'none',
+                transformOrigin: 'top left'
+              }}
+            >
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 6px 12px rgba(139, 92, 246, 0.4))' }}>
+                <path d="M5.5 3.5L16.5 14L11.5 15L8 20.5L5.5 3.5Z" fill="#8B5CF6" stroke="#FFFFFF" strokeWidth="1.5" strokeLinejoin="round"/>
+              </svg>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* The Unfolded Solution Card */}
+      <AnimatePresence>
+        {isRevealed && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, scale: 0.95 }}
+            animate={{ opacity: 1, height: 'auto', scale: 1 }}
+            exit={{ opacity: 0, height: 0, scale: 0.95 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(250,250,250,0.95) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '20px', boxShadow: '0 20px 40px -10px rgba(16, 185, 129, 0.1)', position: 'relative', marginTop: '12px' }}>
+              <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', width: '2px', height: '12px', background: 'rgba(16, 185, 129, 0.3)' }} />
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#059669', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Step 1: Find points of intersection
+              </div>
+              <div style={{ fontSize: '12px', color: '#52525B', lineHeight: 1.6, fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', background: 'rgba(255,255,255,0.7)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.04)', textAlign: 'center' }}>
+                x² = 4 − x² <br />
+                2x² = 4 <br />
+                x = ±√2
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 
 export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -1305,52 +1466,115 @@ export default function Home() {
 
           /* HOW IT WORKS */
           .how-section {
-            padding: 120px 40px;
-            background: #F8F7F5;
+            padding: 140px 40px;
+            background: #FDFCF8;
             border-top: 1px solid rgba(0,0,0,0.06);
+            overflow: hidden;
+            position: relative;
           }
           .how-inner {
             max-width: 1200px;
             margin: 0 auto;
             text-align: center;
+            position: relative;
           }
           .how-headline {
-            font-size: clamp(26px, 3vw, 40px);
+            font-size: clamp(32px, 4vw, 48px);
             font-weight: 700;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.04em;
             color: #09090B;
-            margin-bottom: 72px;
+            margin-bottom: 80px;
+          }
+          .how-steps-container {
+            position: relative;
+            padding: 0 10px;
+          }
+          .how-connector {
+            position: absolute;
+            top: 64px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: repeating-linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 8px, transparent 8px, transparent 16px);
+            z-index: 0;
           }
           .how-steps {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 48px;
+            gap: 40px;
             text-align: left;
+            position: relative;
+            z-index: 1;
           }
-          .how-step-number {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #18181B;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 700;
+          .how-step-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 32px;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.04);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+          }
+          .how-step-card:hover {
+            border-color: rgba(79, 70, 229, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.1);
+          }
+          .how-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: #F4F4F5;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 32px;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: transform 0.3s ease;
+          }
+          .how-step-card:hover .how-icon-wrapper {
+            transform: scale(1.05);
+          }
+          .how-icon-wrapper.step-1 { background: #EEF2FF; color: #4F46E5; }
+          .how-icon-wrapper.step-2 { background: #FFF7ED; color: #EA580C; }
+          .how-icon-wrapper.step-3 { background: #ECFDF5; color: #059669; }
+          .how-icon-svg {
+            width: 28px;
+            height: 28px;
+          }
+          .how-step-number-badge {
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            width: 32px;
+            height: 32px;
+            background: #09090B;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 2px solid #fff;
+            z-index: 2;
           }
           .how-step-title {
-            font-size: 19px;
+            font-size: 20px;
             font-weight: 700;
             color: #09090B;
             letter-spacing: -0.02em;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            line-height: 1.3;
           }
           .how-step-body {
             font-size: 15px;
-            color: #71717A;
-            line-height: 1.7;
+            color: #52525B;
+            line-height: 1.6;
           }
 
           /* ISAAC CHAT PANEL */
@@ -1517,6 +1741,11 @@ export default function Home() {
 
             .how-section { padding: 80px 20px; }
             .how-steps { grid-template-columns: 1fr; gap: 40px; }
+            .how-connector {
+              top: 0; bottom: 0; left: 52px; right: auto; width: 2px; height: 100%;
+              background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 8px, transparent 8px, transparent 16px);
+            }
+            .how-step-card { padding: 32px 24px; }
 
             .isaac-panel { max-width: 100%; }
             .isaac-body { min-height: 280px; }
@@ -1824,23 +2053,64 @@ export default function Home() {
           viewport={{ once: true, margin: "-100px" }}
         >
           <motion.h2 variants={itemVariant} className="how-headline">How it works</motion.h2>
-          <motion.div className="how-steps" variants={containerVariant}>
-            <motion.div variants={itemVariant}>
-              <div className="how-step-number">1</div>
-              <h3 className="how-step-title">Pick a topic or paper</h3>
-              <p className="how-step-body">Choose a full practice paper or drill a specific topic — Integration, Vectors, Probability, whatever's costing you marks.</p>
+
+          <div className="how-steps-container">
+            <motion.div 
+              className="how-connector"
+              initial={{ opacity: 0, scaleX: 0 }}
+              whileInView={{ opacity: 1, scaleX: 1 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              style={{ transformOrigin: "left" }}
+            />
+            
+            <motion.div className="how-steps" variants={containerVariant}>
+              {/* Step 1 */}
+              <motion.div variants={itemVariant} whileHover={{ y: -8 }} className="how-step-card">
+                <div className="how-step-number-badge">1</div>
+                <div className="how-icon-wrapper step-1">
+                  <svg className="how-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                  </svg>
+                </div>
+                <h3 className="how-step-title">Pick a topic or paper</h3>
+                <p className="how-step-body">Choose a full practice paper or drill a specific topic — Integration, Vectors, Probability, whatever's costing you marks.</p>
+              </motion.div>
+
+              {/* Step 2 */}
+              <motion.div variants={itemVariant} whileHover={{ y: -8 }} className="how-step-card">
+                <div className="how-step-number-badge">2</div>
+                <div className="how-icon-wrapper step-2">
+                  <svg className="how-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="7.5 4.21 12 6.81 16.5 4.21" />
+                    <polyline points="7.5 19.79 7.5 14.6 3 12" />
+                    <polyline points="21 12 16.5 14.6 16.5 19.79" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                </div>
+                <h3 className="how-step-title">Attempt questions cold</h3>
+                <p className="how-step-body">No peeking. Try each question properly, then mark yourself. Solutions stay hidden until you're ready.</p>
+              </motion.div>
+
+              {/* Step 3 */}
+              <motion.div variants={itemVariant} whileHover={{ y: -8 }} className="how-step-card">
+                <div className="how-step-number-badge">3</div>
+                <div className="how-icon-wrapper step-3">
+                  <svg className="how-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                    <polyline points="4 14 12 4 18 10 22 6" />
+                  </svg>
+                </div>
+                <h3 className="how-step-title">Pinpoint your knowledge gaps</h3>
+                <p className="how-step-body">Your results feed into a tracker that shows exactly which topics you keep dropping marks on — so your next session targets what matters.</p>
+              </motion.div>
             </motion.div>
-            <motion.div variants={itemVariant}>
-              <div className="how-step-number">2</div>
-              <h3 className="how-step-title">Attempt questions cold</h3>
-              <p className="how-step-body">No peeking. Try each question properly, then mark yourself. Solutions stay hidden until you're ready.</p>
-            </motion.div>
-            <motion.div variants={itemVariant}>
-              <div className="how-step-number">3</div>
-              <h3 className="how-step-title">See what's actually weak</h3>
-              <p className="how-step-body">Your results feed into a tracker that shows exactly which topics you keep dropping marks on — so your next session targets what matters.</p>
-            </motion.div>
-          </motion.div>
+          </div>
         </motion.div>
       </section>
 
@@ -1962,51 +2232,7 @@ export default function Home() {
               <div className="screenshot-body-content" style={{ gap: '16px' }}>
                 <div style={{ position: 'absolute', top: '10px', left: '-20px', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)', filter: 'blur(30px)', zIndex: 0 }} />
 
-                <motion.div
-                  style={{ width: '100%', maxWidth: '340px', zIndex: 1 }}
-                  variants={containerVariant}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  {/* The Question Card */}
-                  <motion.div variants={itemVariant} style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', borderRadius: '12px', padding: '20px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.1)', marginBottom: '12px', position: 'relative' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 600, color: '#09090B', background: '#F4F4F5', padding: '4px 8px', borderRadius: '4px' }}>Question 14b</span>
-                      <span style={{ fontSize: '11px', color: '#A1A1AA', fontWeight: 500 }}>4 marks</span>
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#18181B', lineHeight: 1.6, marginBottom: '16px', fontWeight: 500 }}>
-                      Find the exact area enclosed between the curves <br />
-                      <span style={{ fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', fontSize: '14px' }}>y = x²</span> and <span style={{ fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', fontSize: '14px' }}>y = 4 − x²</span>.
-                    </div>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02, backgroundColor: '#27272A' }}
-                      whileTap={{ scale: 0.98 }}
-                      style={{ width: '100%', background: '#18181B', color: '#fff', fontSize: '11px', fontWeight: 600, padding: '10px 0', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"></path></svg>
-                      Reveal Solution
-                    </motion.button>
-                  </motion.div>
-
-                  {/* The Unfolded Solution Card */}
-                  <motion.div
-                    variants={itemVariant}
-                    style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(250,250,250,0.95) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '20px', boxShadow: '0 20px 40px -10px rgba(16, 185, 129, 0.1)', position: 'relative' }}
-                  >
-                    <div style={{ position: 'absolute', top: '-8px', left: '50%', transform: 'translateX(-50%)', width: '2px', height: '14px', background: 'rgba(16, 185, 129, 0.3)' }} />
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#059669', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                      Step 1: Find points of intersection
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#52525B', lineHeight: 1.6, fontFamily: '"Times New Roman", Times, serif', fontStyle: 'italic', background: 'rgba(255,255,255,0.7)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.04)', textAlign: 'center' }}>
-                      x² = 4 − x² <br />
-                      2x² = 4 <br />
-                      x = ±√2
-                    </div>
-                  </motion.div>
-                </motion.div>
+                <AnimatedSolutionDemo />
 
               </div>
             </div>
