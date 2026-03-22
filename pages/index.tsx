@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { motion, useScroll, useTransform, Variants, useInView, useMotionValue, animate } from 'motion/react';
+import { motion, useScroll, useTransform, Variants, useInView, useMotionValue, animate, AnimatePresence } from 'motion/react';
 
 // Animated counter component
 function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
@@ -22,6 +22,304 @@ function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
     return controls.stop;
   }, [inView, motionVal, to, suffix]);
   return <span ref={ref}>0{suffix}</span>;
+}
+
+// Isaac animated face — transitions between happy, thinking, and talking moods
+function IsaacFace({ mood }: { mood: 'happy' | 'thinking' | 'talking' }) {
+  const [mouthOpen, setMouthOpen] = useState(false);
+  const [blinking, setBlinking] = useState(false);
+
+  useEffect(() => {
+    if (mood !== 'talking') { setMouthOpen(false); return; }
+    const interval = setInterval(() => setMouthOpen(o => !o), 400);
+    return () => clearInterval(interval);
+  }, [mood]);
+
+  useEffect(() => {
+    if (mood !== 'talking') { setBlinking(false); return; }
+    const timer = setTimeout(() => {
+      setBlinking(true);
+      setTimeout(() => setBlinking(false), 150);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [mood]);
+
+  const pCx = mood === 'thinking' ? -1 : 0;
+  const pCy = mood === 'thinking' ? -0.8 : mood === 'talking' ? -0.2 : 0;
+  const cheekOp = mood === 'happy' ? 0.35 : mood === 'thinking' ? 0.15 : 0.28;
+
+  return (
+    <motion.div
+      animate={{ y: mood === 'thinking' ? 0 : [0, -1, 0] }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      <motion.svg
+        width="32" height="32" viewBox="0 0 40 40" fill="none"
+        style={{ transformOrigin: 'center', display: 'block' }}
+        animate={{
+          rotate: mood === 'talking' ? [0, 1, -1, 0] : mood === 'thinking' ? -4 : 0,
+        }}
+        transition={mood === 'talking'
+          ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
+          : { duration: 0.4 }
+        }
+      >
+        <rect width="40" height="40" rx="12" fill="#FFDAA6" />
+        {/* Eye whites */}
+        <circle cx="14" cy="17" r="3.5" fill="#FFFFFF" />
+        <circle cx="26" cy="17" r="3.5" fill="#FFFFFF" />
+        {/* Pupils — animate position for mood, ry for blink */}
+        <motion.ellipse
+          fill="#2D2B3D"
+          animate={{ cx: 14 + pCx, cy: 17 + pCy, rx: 2.5, ry: blinking ? 0.25 : 2.5 }}
+          transition={{ duration: 0.15 }}
+        />
+        <motion.ellipse
+          fill="#2D2B3D"
+          animate={{ cx: 26 + pCx, cy: 17 + pCy, rx: 2.5, ry: blinking ? 0.25 : 2.5 }}
+          transition={{ duration: 0.15 }}
+        />
+        {/* Highlights */}
+        <circle cx="13" cy="16" r="1" fill="#fff" opacity="0.8" />
+        <circle cx="25" cy="16" r="1" fill="#fff" opacity="0.8" />
+        {/* Cheeks */}
+        <motion.ellipse cx="12" cy="21" rx="4" ry="2.5" fill="#FFBCBC"
+          animate={{ opacity: cheekOp }} transition={{ duration: 0.3 }}
+        />
+        <motion.ellipse cx="28" cy="21" rx="4" ry="2.5" fill="#FFBCBC"
+          animate={{ opacity: cheekOp }} transition={{ duration: 0.3 }}
+        />
+        {/* Mouth — happy smile */}
+        <motion.path d="M15 24 Q20 28 25 24" stroke="#C75A3A" strokeWidth="2"
+          strokeLinecap="round" fill="none"
+          animate={{ opacity: mood === 'happy' ? 1 : 0 }} transition={{ duration: 0.2 }}
+        />
+        {/* Mouth — thinking pout */}
+        <motion.path d="M17 24.5 Q20 25.5 23 24.5" stroke="#C75A3A" strokeWidth="2"
+          strokeLinecap="round" fill="none"
+          animate={{ opacity: mood === 'thinking' ? 1 : 0 }} transition={{ duration: 0.2 }}
+        />
+        {/* Mouth — talking closed */}
+        <motion.path d="M15 24 Q20 28 25 24" stroke="#C75A3A" strokeWidth="2"
+          strokeLinecap="round" fill="none"
+          animate={{ opacity: mood === 'talking' && !mouthOpen ? 1 : 0 }} transition={{ duration: 0.1 }}
+        />
+        {/* Mouth — talking open */}
+        <motion.path d="M16 23.5 Q20 27 24 23.5" stroke="#C75A3A" strokeWidth="2"
+          strokeLinecap="round" fill="#E8735A"
+          animate={{ opacity: mood === 'talking' && mouthOpen ? 1 : 0 }} transition={{ duration: 0.1 }}
+        />
+      </motion.svg>
+    </motion.div>
+  );
+}
+
+// Isaac animated chat panel — loops every ~12s showing a real conversation
+function IsaacAnimatedPanel() {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(panelRef, { margin: "-100px" });
+  const [started, setStarted] = useState(false);
+  const [cycle, setCycle] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [mood, setMood] = useState<'happy' | 'thinking' | 'talking'>('happy');
+  const [showChip, setShowChip] = useState(false);
+  const [showUserMsg, setShowUserMsg] = useState(false);
+  const [showTyping, setShowTyping] = useState(false);
+  const [showLine1, setShowLine1] = useState(false);
+  const [showLine2, setShowLine2] = useState(false);
+  const [showLine3, setShowLine3] = useState(false);
+  const [showPills, setShowPills] = useState(false);
+
+  useEffect(() => {
+    if (isInView && !started) setStarted(true);
+  }, [isInView, started]);
+
+  useEffect(() => {
+    if (!started) return;
+
+    // Reset everything for new cycle
+    setVisible(true);
+    setShowChip(false);
+    setShowUserMsg(false);
+    setShowTyping(false);
+    setShowLine1(false);
+    setShowLine2(false);
+    setShowLine3(false);
+    setShowPills(false);
+    setMood('happy');
+
+    const timers = [
+      // Frame 2: context chip + user message
+      setTimeout(() => setShowChip(true), 1000),
+      setTimeout(() => setShowUserMsg(true), 1300),
+      // Frame 3: Isaac thinks
+      setTimeout(() => { setMood('thinking'); setShowTyping(true); }, 2500),
+      // Frame 4: Isaac responds — line by line
+      setTimeout(() => { setMood('talking'); setShowTyping(false); setShowLine1(true); }, 4500),
+      setTimeout(() => setShowLine2(true), 6000),
+      setTimeout(() => setShowLine3(true), 7500),
+      // Frame 5: happy mood + language pills
+      setTimeout(() => { setMood('happy'); setShowPills(true); }, 9000),
+      // Frame 6: hold then fade out
+      setTimeout(() => setVisible(false), 11000),
+      setTimeout(() => setCycle(c => c + 1), 12000),
+    ];
+
+    return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [started, cycle]);
+
+  return (
+    <div ref={panelRef} style={{ minHeight: 440 }}>
+      <AnimatePresence mode="wait">
+        {visible && (
+          <motion.div
+            key={cycle}
+            className="isaac-panel"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.5, ease: 'easeOut' } }}
+            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+          >
+            {/* Header with animated face */}
+            <div className="isaac-header">
+              <IsaacFace mood={mood} />
+              <div>
+                <div className="isaac-header-name">Isaac</div>
+                <div className="isaac-header-status">AI Maths Tutor</div>
+              </div>
+            </div>
+
+            {/* Chat body */}
+            <div className="isaac-body">
+              {/* Context chip */}
+              <AnimatePresence>
+                {showChip && (
+                  <motion.div
+                    key="chip"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <span className="isaac-context-chip">Q14B</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* User message */}
+              <AnimatePresence>
+                {showUserMsg && (
+                  <motion.div
+                    key="user-msg"
+                    className="isaac-user-msg"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
+                  >
+                    Why do we set the two equations equal to each other first?
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Typing indicator */}
+              <AnimatePresence>
+                {showTyping && (
+                  <motion.div
+                    key="typing"
+                    className="isaac-typing"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {[0, 0.15, 0.3].map((delay) => (
+                      <motion.div
+                        key={delay}
+                        style={{ width: 6, height: 6, borderRadius: '50%', background: '#A1A1AA' }}
+                        animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 0.9, repeat: Infinity, delay }}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Isaac response — progressive reveal */}
+              <AnimatePresence>
+                {showLine1 && (
+                  <motion.div
+                    key="bot-msg"
+                    className="isaac-bot-msg"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
+                  >
+                    <strong>Great question.</strong> Setting <em>y = x²</em> equal to <em>y = 4 − x²</em> finds where the curves cross — those are your integration bounds.
+
+                    <AnimatePresence>
+                      {showLine2 && (
+                        <motion.span
+                          key="line2"
+                          style={{ display: 'block', marginTop: 8 }}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          Think of it this way: you can&#39;t calculate the area <em>between</em> two curves until you know <em>where they meet</em>. The intersection points give you the limits of your definite integral.
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
+                      {showLine3 && (
+                        <motion.span
+                          key="line3"
+                          className="isaac-trap"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          Common HSC trap: students forget to check which curve is on top.
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Language pills */}
+            <AnimatePresence>
+              {showPills && (
+                <motion.div
+                  key="pills"
+                  className="language-pills-wrap"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="language-pills-label">Explain in your language</div>
+                  <div className="language-pills">
+                    {['\u0627\u0644\u0639\u0631\u0628\u064A\u0629', '\u4E2D\u6587', '\u0939\u093F\u0928\u094D\u0926\u0940', 'Ti\u1EBFng Vi\u1EC7t', '\uD55C\uAD6D\uC5B4', '\u65E5\u672C\u8A9E'].map((lang, i) => (
+                      <motion.span
+                        key={lang}
+                        className="language-pill"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.08, duration: 0.3 }}
+                      >
+                        {lang}
+                      </motion.span>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 const containerVariant: Variants = {
@@ -1821,95 +2119,7 @@ export default function Home() {
             <div style={{ position: 'relative' }}>
               {/* Glow */}
               <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(255, 180, 100, 0.18) 0%, transparent 70%)', filter: 'blur(30px)', zIndex: 0 }} />
-
-              <motion.div
-                className="isaac-panel"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ type: 'spring', bounce: 0, duration: 0.8 }}
-                viewport={{ once: true }}
-              >
-                {/* Header */}
-                <div className="isaac-header">
-                  <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-                    <rect width="40" height="40" rx="12" fill="#FFDAA6" />
-                    <circle cx="14" cy="17" r="2.5" fill="#2D2B3D" />
-                    <circle cx="13" cy="16" r="1" fill="#fff" />
-                    <circle cx="26" cy="17" r="2.5" fill="#2D2B3D" />
-                    <circle cx="25" cy="16" r="1" fill="#fff" />
-                    <ellipse cx="12" cy="21" rx="4" ry="2.5" fill="#FFBCBC" opacity="0.35" />
-                    <ellipse cx="28" cy="21" rx="4" ry="2.5" fill="#FFBCBC" opacity="0.35" />
-                    <path d="M15 24 Q20 28 25 24" stroke="#C75A3A" strokeWidth="2" strokeLinecap="round" fill="none" />
-                  </svg>
-                  <div>
-                    <div className="isaac-header-name">Isaac</div>
-                    <div className="isaac-header-status">AI Maths Tutor</div>
-                  </div>
-                </div>
-
-                {/* Chat body */}
-                <div className="isaac-body">
-                  {/* Context chip */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    viewport={{ once: true }}
-                  >
-                    <span className="isaac-context-chip">Q14B</span>
-                  </motion.div>
-
-                  {/* User message */}
-                  <motion.div
-                    className="isaac-user-msg"
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5, type: 'spring', bounce: 0 }}
-                    viewport={{ once: true }}
-                  >
-                    Why do we set the two equations equal to each other first?
-                  </motion.div>
-
-                  {/* Isaac response */}
-                  <motion.div
-                    className="isaac-bot-msg"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1, type: 'spring', bounce: 0 }}
-                    viewport={{ once: true }}
-                  >
-                    <strong>Great question.</strong> Setting <em>y = x²</em> equal to <em>y = 4 − x²</em> finds where the curves cross — those are your integration bounds.
-                    <br /><br />
-                    Think of it this way: you can't calculate the area <em>between</em> two curves until you know <em>where they meet</em>. The intersection points give you the limits of your definite integral.
-                    <span className="isaac-trap">Common HSC trap: students forget to check which curve is on top.</span>
-                  </motion.div>
-                </div>
-
-                {/* Language pills */}
-                <motion.div
-                  className="language-pills-wrap"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.5 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="language-pills-label">Explain in your language</div>
-                  <div className="language-pills">
-                    {['العربية', '中文', 'हिन्दी', 'Tiếng Việt', '한국어', '日本語'].map((lang, i) => (
-                      <motion.span
-                        key={lang}
-                        className="language-pill"
-                        initial={{ opacity: 0, y: 5 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.6 + i * 0.08 }}
-                        viewport={{ once: true }}
-                      >
-                        {lang}
-                      </motion.span>
-                    ))}
-                  </div>
-                </motion.div>
-              </motion.div>
+              <IsaacAnimatedPanel />
             </div>
           </motion.div>
           <div className="feature-copy">
