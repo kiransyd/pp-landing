@@ -54,6 +54,7 @@ export default function V2() {
   const y1 = useTransform(scrollYProgress, [0.1, 0.4], [50, -50]);
   const y2 = useTransform(scrollYProgress, [0.3, 0.6], [50, -50]);
   const y3 = useTransform(scrollYProgress, [0.5, 0.8], [50, -50]);
+  const y4 = useTransform(scrollYProgress, [0.6, 0.85], [50, -50]);
 
   // Parallax for pain section image
   const painImageY = useTransform(scrollYProgress, [0.05, 0.25], [30, -30]);
@@ -953,6 +954,169 @@ export default function V2() {
             color: #A1A1AA;
           }
 
+          /* HOW IT WORKS */
+          .how-section {
+            padding: 120px 40px;
+            background: #F8F7F5;
+            border-top: 1px solid rgba(0,0,0,0.06);
+          }
+          .how-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+          }
+          .how-headline {
+            font-size: clamp(32px, 4vw, 52px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #09090B;
+            margin-bottom: 72px;
+          }
+          .how-steps {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 48px;
+            text-align: left;
+          }
+          .how-step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #18181B;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+          }
+          .how-step-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: #09090B;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+          }
+          .how-step-body {
+            font-size: 15px;
+            color: #71717A;
+            line-height: 1.7;
+          }
+
+          /* ISAAC CHAT PANEL */
+          .isaac-panel {
+            width: 100%;
+            max-width: 400px;
+            background: #FFFBF5;
+            border-radius: 16px;
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.12), 0 10px 30px -10px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.06);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+          }
+          .isaac-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            background: rgba(255,255,255,0.6);
+          }
+          .isaac-header-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #09090B;
+          }
+          .isaac-header-status {
+            font-size: 10px;
+            color: #71717A;
+          }
+          .isaac-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 340px;
+          }
+          .isaac-context-chip {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 600;
+            color: #71717A;
+            background: #F4F4F5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+          }
+          .isaac-user-msg {
+            align-self: flex-end;
+            background: #18181B;
+            color: #fff;
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 10px 14px;
+            border-radius: 12px 12px 4px 12px;
+            max-width: 85%;
+          }
+          .isaac-bot-msg {
+            align-self: flex-start;
+            background: #F4F4F5;
+            color: #18181B;
+            font-size: 13px;
+            line-height: 1.65;
+            padding: 12px 14px;
+            border-radius: 12px 12px 12px 4px;
+            max-width: 90%;
+          }
+          .isaac-bot-msg strong {
+            font-weight: 600;
+          }
+          .isaac-bot-msg .isaac-trap {
+            display: block;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            color: #D97706;
+            font-size: 12px;
+            font-weight: 600;
+          }
+          .isaac-typing {
+            display: flex;
+            gap: 4px;
+            padding: 8px 14px;
+            align-self: flex-start;
+          }
+          .isaac-typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #A1A1AA;
+          }
+          .language-pills-wrap {
+            padding: 0 18px 16px;
+          }
+          .language-pills-label {
+            font-size: 10px;
+            color: #A1A1AA;
+            margin-bottom: 8px;
+          }
+          .language-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+          }
+          .language-pill {
+            font-size: 11px;
+            color: #52525B;
+            background: rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: 3px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+          }
+
           /* FADE UP - replaced by framer motion
           .fade-up {
             opacity: 0;
@@ -1013,6 +1177,12 @@ export default function V2() {
             .close-section { padding: 100px 20px; }
             .btn-white { width: 100%; text-align: center; }
 
+            .how-section { padding: 80px 20px; }
+            .how-steps { grid-template-columns: 1fr; gap: 40px; }
+
+            .isaac-panel { max-width: 100%; }
+            .isaac-body { min-height: 280px; }
+
             .footer { padding: 32px 20px; }
             .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
             .footer-links { flex-wrap: wrap; gap: 16px; }
@@ -1055,7 +1225,7 @@ export default function V2() {
               Band 6 maths students don't study more.<br />They practise differently.
             </motion.h1>
             <motion.p variants={itemVariant} className="hero-sub">
-              Real HSC-style questions, complete worked solutions, and a tracker that shows exactly which topics are costing you marks — so every session counts.
+              Real HSC-style questions, complete worked solutions, and a tracker that shows exactly which topics are costing you marks — so every session counts. Set up in 30 seconds. Personalised to your subjects and year level.
             </motion.p>
             <motion.div variants={itemVariant} className="hero-ctas">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -1293,6 +1463,36 @@ export default function V2() {
               </svg>
               <div className="feature-card-title">Practice by topic</div>
               <p className="feature-card-body">Choose a topic — Integration, Probability, Vectors — and drill questions from across all papers. Focused practice, not random noise.</p>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* SECTION 4.5 — HOW IT WORKS */}
+      <section className="how-section">
+        <motion.div
+          className="how-inner"
+          variants={containerVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.h2 variants={itemVariant} className="how-headline">How it works</motion.h2>
+          <motion.div className="how-steps" variants={containerVariant}>
+            <motion.div variants={itemVariant}>
+              <div className="how-step-number">1</div>
+              <h3 className="how-step-title">Pick a topic or paper</h3>
+              <p className="how-step-body">Choose a full practice paper or drill a specific topic — Integration, Vectors, Probability, whatever's costing you marks.</p>
+            </motion.div>
+            <motion.div variants={itemVariant}>
+              <div className="how-step-number">2</div>
+              <h3 className="how-step-title">Attempt questions cold</h3>
+              <p className="how-step-body">No peeking. Try each question properly, then mark yourself. Solutions stay hidden until you're ready.</p>
+            </motion.div>
+            <motion.div variants={itemVariant}>
+              <div className="how-step-number">3</div>
+              <h3 className="how-step-title">See what's actually weak</h3>
+              <p className="how-step-body">Your results feed into a tracker that shows exactly which topics you keep dropping marks on — so your next session targets what matters.</p>
             </motion.div>
           </motion.div>
         </motion.div>
@@ -1546,6 +1746,122 @@ export default function V2() {
           </div>
         </motion.div>
 
+        {/* Feature 4: Isaac — text left, chat panel right */}
+        <motion.div
+          className="feature-block reverse"
+          variants={itemVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <motion.div className="screenshot-wrap" style={{ y: y4 }}>
+            <div style={{ position: 'relative' }}>
+              {/* Glow */}
+              <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(255, 180, 100, 0.18) 0%, transparent 70%)', filter: 'blur(30px)', zIndex: 0 }} />
+
+              <motion.div
+                className="isaac-panel"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                {/* Header */}
+                <div className="isaac-header">
+                  <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="12" fill="#FFDAA6" />
+                    <circle cx="14" cy="17" r="2.5" fill="#2D2B3D" />
+                    <circle cx="13" cy="16" r="1" fill="#fff" />
+                    <circle cx="26" cy="17" r="2.5" fill="#2D2B3D" />
+                    <circle cx="25" cy="16" r="1" fill="#fff" />
+                    <ellipse cx="12" cy="21" rx="4" ry="2.5" fill="#FFBCBC" opacity="0.35" />
+                    <ellipse cx="28" cy="21" rx="4" ry="2.5" fill="#FFBCBC" opacity="0.35" />
+                    <path d="M15 24 Q20 28 25 24" stroke="#C75A3A" strokeWidth="2" strokeLinecap="round" fill="none" />
+                  </svg>
+                  <div>
+                    <div className="isaac-header-name">Isaac</div>
+                    <div className="isaac-header-status">AI Maths Tutor</div>
+                  </div>
+                </div>
+
+                {/* Chat body */}
+                <div className="isaac-body">
+                  {/* Context chip */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    viewport={{ once: true }}
+                  >
+                    <span className="isaac-context-chip">Q14B</span>
+                  </motion.div>
+
+                  {/* User message */}
+                  <motion.div
+                    className="isaac-user-msg"
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5, type: 'spring', bounce: 0 }}
+                    viewport={{ once: true }}
+                  >
+                    Why do we set the two equations equal to each other first?
+                  </motion.div>
+
+                  {/* Isaac response */}
+                  <motion.div
+                    className="isaac-bot-msg"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1, type: 'spring', bounce: 0 }}
+                    viewport={{ once: true }}
+                  >
+                    <strong>Great question.</strong> Setting <em>y = x²</em> equal to <em>y = 4 − x²</em> finds where the curves cross — those are your integration bounds.
+                    <br /><br />
+                    Think of it this way: you can't calculate the area <em>between</em> two curves until you know <em>where they meet</em>. The intersection points give you the limits of your definite integral.
+                    <span className="isaac-trap">Common HSC trap: students forget to check which curve is on top.</span>
+                  </motion.div>
+                </div>
+
+                {/* Language pills */}
+                <motion.div
+                  className="language-pills-wrap"
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.5 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="language-pills-label">Explain in your language</div>
+                  <div className="language-pills">
+                    {['العربية', '中文', 'हिन्दी', 'Tiếng Việt', '한국어', '日本語'].map((lang, i) => (
+                      <motion.span
+                        key={lang}
+                        className="language-pill"
+                        initial={{ opacity: 0, y: 5 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.6 + i * 0.08 }}
+                        viewport={{ once: true }}
+                      >
+                        {lang}
+                      </motion.span>
+                    ))}
+                  </div>
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+          <div className="feature-copy">
+            <span className="feature-copy-eyebrow">Meet Isaac</span>
+            <h3 className="feature-copy-headline">A maths tutor who's awake at 11pm the night before your exam.</h3>
+            <p className="feature-copy-body">
+              Stuck on a question? Tap "Ask Isaac" next to any solution step. He'll break it down — why the method works, what the marker looks for, where students typically slip up.
+              <br /><br />
+              Isaac isn't a chatbot that gives you the answer. He explains the reasoning behind each step, flags common HSC traps, and tells you exactly how to set out your working for full marks.
+              <br /><br />
+              And if English isn't your first language, Isaac explains in yours — Arabic, Chinese, Hindi, Vietnamese, and eight other languages.
+            </p>
+          </div>
+        </motion.div>
+
       </section>
 
       {/* SECTION 6 — SOCIAL PROOF */}
@@ -1579,8 +1895,8 @@ export default function V2() {
                 <div className="testimonial-author"><strong>Priya M.</strong> — Mathematics Extension 1</div>
               </motion.div>
               <motion.div variants={itemVariant} whileHover={{ y: -6, boxShadow: '0 12px 32px -8px rgba(0,0,0,0.08)' }} className="testimonial-card">
-                <p className="testimonial-text">"my mum found this and I'm genuinely glad she did"</p>
-                <div className="testimonial-author"><strong>Ethan R.</strong> — Mathematics Standard</div>
+                <p className="testimonial-text">"i asked isaac to explain integration by parts in vietnamese for my mum so she'd stop asking what i'm even studying. he actually did it. properly."</p>
+                <div className="testimonial-author"><strong>Sarah L.</strong> — Mathematics Advanced</div>
               </motion.div>
             </motion.div>
           </div>
@@ -1677,13 +1993,14 @@ export default function V2() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          <motion.h2 variants={itemVariant} className="close-headline">Your HSC is closer than it feels.</motion.h2>
-          <motion.p variants={itemVariant} className="close-body">The gap between where you are and the mark you want is almost always the same thing: not enough practice on the right questions, with feedback that tells you exactly where your reasoning broke down. That's what this is. Start tonight.</motion.p>
+          <motion.span variants={itemVariant} style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#71717A', marginBottom: '20px', display: 'block' }}>Early access</motion.span>
+          <motion.h2 variants={itemVariant} className="close-headline">Be one of the first students to use it.</motion.h2>
+          <motion.p variants={itemVariant} className="close-body">We're opening PracticePapers.io to HSC students before the full launch. You'll get free access to every feature — and your feedback shapes what we build next.</motion.p>
           <motion.div variants={itemVariant}>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ display: 'inline-block' }}>
-              <Link href="#" className="btn-white">Start your free trial</Link>
+              <Link href="#" className="btn-white">Join the beta — it's free</Link>
             </motion.div>
-            <p className="close-micro">7 days free. Then $12/month. Cancel any time.</p>
+            <p className="close-micro">No credit card. No catch.</p>
           </motion.div>
         </motion.div>
       </section>
