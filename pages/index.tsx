@@ -114,20 +114,41 @@ function IsaacFace({ mood }: { mood: 'happy' | 'thinking' | 'talking' }) {
   );
 }
 
+// Isaac response tokens for word-by-word streaming
+const ISAAC_STREAM: Array<{ t: string; f?: 'b' | 'i' | 'tr'; br?: boolean }> = [
+  // Paragraph 1
+  { t: 'Great', f: 'b' }, { t: 'question.', f: 'b' },
+  { t: 'Setting' }, { t: 'y\u00a0=\u00a0x\u00b2', f: 'i' }, { t: 'equal' }, { t: 'to' },
+  { t: 'y\u00a0=\u00a04\u00a0\u2212\u00a0x\u00b2', f: 'i' }, { t: 'finds' }, { t: 'where' },
+  { t: 'the' }, { t: 'curves' }, { t: 'cross' }, { t: '\u2014' }, { t: 'those' },
+  { t: 'are' }, { t: 'your' }, { t: 'integration' }, { t: 'bounds.' },
+  // Paragraph 2
+  { t: 'Think', br: true }, { t: 'of' }, { t: 'it' }, { t: 'this' }, { t: 'way:' },
+  { t: 'you' }, { t: "can\u2019t" }, { t: 'calculate' }, { t: 'the' }, { t: 'area' },
+  { t: 'between', f: 'i' }, { t: 'two' }, { t: 'curves' }, { t: 'until' },
+  { t: 'you' }, { t: 'know' }, { t: 'where', f: 'i' }, { t: 'they', f: 'i' },
+  { t: 'meet.', f: 'i' }, { t: 'The' }, { t: 'intersection' }, { t: 'points' },
+  { t: 'give' }, { t: 'you' }, { t: 'the' }, { t: 'limits' }, { t: 'of' },
+  { t: 'your' }, { t: 'definite' }, { t: 'integral.' },
+  // Trap callout
+  { t: 'Common', br: true, f: 'tr' }, { t: 'HSC', f: 'tr' }, { t: 'trap:', f: 'tr' },
+  { t: 'students', f: 'tr' }, { t: 'forget', f: 'tr' }, { t: 'to', f: 'tr' },
+  { t: 'check', f: 'tr' }, { t: 'which', f: 'tr' }, { t: 'curve', f: 'tr' },
+  { t: 'is', f: 'tr' }, { t: 'on', f: 'tr' }, { t: 'top.', f: 'tr' },
+];
+
 // Isaac animated chat panel — loops every ~12s showing a real conversation
 function IsaacAnimatedPanel() {
   const panelRef = useRef<HTMLDivElement>(null);
+  const streamRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isInView = useInView(panelRef, { margin: "-100px" });
   const [started, setStarted] = useState(false);
   const [cycle, setCycle] = useState(0);
   const [visible, setVisible] = useState(false);
   const [mood, setMood] = useState<'happy' | 'thinking' | 'talking'>('happy');
-  const [showChip, setShowChip] = useState(false);
   const [showUserMsg, setShowUserMsg] = useState(false);
-  const [showTyping, setShowTyping] = useState(false);
-  const [showLine1, setShowLine1] = useState(false);
-  const [showLine2, setShowLine2] = useState(false);
-  const [showLine3, setShowLine3] = useState(false);
+  const [showResponse, setShowResponse] = useState(false);
+  const [streamCount, setStreamCount] = useState(0);
   const [showPills, setShowPills] = useState(false);
 
   useEffect(() => {
@@ -139,35 +160,52 @@ function IsaacAnimatedPanel() {
 
     // Reset everything for new cycle
     setVisible(true);
-    setShowChip(false);
     setShowUserMsg(false);
-    setShowTyping(false);
-    setShowLine1(false);
-    setShowLine2(false);
-    setShowLine3(false);
+    setShowResponse(false);
+    setStreamCount(0);
     setShowPills(false);
     setMood('happy');
 
     const timers = [
-      // Frame 2: context chip + user message
-      setTimeout(() => setShowChip(true), 1000),
-      setTimeout(() => setShowUserMsg(true), 1300),
-      // Frame 3: Isaac thinks
-      setTimeout(() => { setMood('thinking'); setShowTyping(true); }, 2500),
-      // Frame 4: Isaac responds — line by line
-      setTimeout(() => { setMood('talking'); setShowTyping(false); setShowLine1(true); }, 4500),
-      setTimeout(() => setShowLine2(true), 6000),
-      setTimeout(() => setShowLine3(true), 7500),
-      // Frame 5: happy mood + language pills
-      setTimeout(() => { setMood('happy'); setShowPills(true); }, 9000),
-      // Frame 6: hold then fade out
-      setTimeout(() => setVisible(false), 11000),
-      setTimeout(() => setCycle(c => c + 1), 12000),
+      // User message slides in
+      setTimeout(() => setShowUserMsg(true), 1000),
+      // Isaac considers the question briefly
+      setTimeout(() => setMood('thinking'), 2500),
+      // Isaac starts talking — stream response word by word
+      setTimeout(() => {
+        setMood('talking');
+        setShowResponse(true);
+        let count = 0;
+        streamRef.current = setInterval(() => {
+          count++;
+          setStreamCount(count);
+          if (count >= ISAAC_STREAM.length) {
+            clearInterval(streamRef.current!);
+            streamRef.current = null;
+          }
+        }, 70);
+      }, 3000),
+      // Streaming done (~7.2s) — back to happy
+      setTimeout(() => setMood('happy'), 8000),
+      // Language pills
+      setTimeout(() => setShowPills(true), 8500),
+      // Hold then fade out
+      setTimeout(() => setVisible(false), 10500),
+      setTimeout(() => setCycle(c => c + 1), 11500),
     ];
 
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      timers.forEach(clearTimeout);
+      if (streamRef.current) {
+        clearInterval(streamRef.current);
+        streamRef.current = null;
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, cycle]);
+
+  // Find the index of the first trap token for the divider
+  const firstTrapIdx = ISAAC_STREAM.findIndex(tk => tk.f === 'tr');
 
   return (
     <div ref={panelRef} style={{ minHeight: 440 }}>
@@ -192,20 +230,6 @@ function IsaacAnimatedPanel() {
 
             {/* Chat body */}
             <div className="isaac-body">
-              {/* Context chip */}
-              <AnimatePresence>
-                {showChip && (
-                  <motion.div
-                    key="chip"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <span className="isaac-context-chip">Q14B</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
               {/* User message */}
               <AnimatePresence>
                 {showUserMsg && (
@@ -221,68 +245,29 @@ function IsaacAnimatedPanel() {
                 )}
               </AnimatePresence>
 
-              {/* Typing indicator */}
+              {/* Isaac response — word-by-word streaming */}
               <AnimatePresence>
-                {showTyping && (
-                  <motion.div
-                    key="typing"
-                    className="isaac-typing"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {[0, 0.15, 0.3].map((delay) => (
-                      <motion.div
-                        key={delay}
-                        style={{ width: 6, height: 6, borderRadius: '50%', background: '#A1A1AA' }}
-                        animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 0.9, repeat: Infinity, delay }}
-                      />
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Isaac response — progressive reveal */}
-              <AnimatePresence>
-                {showLine1 && (
+                {showResponse && (
                   <motion.div
                     key="bot-msg"
                     className="isaac-bot-msg"
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    <strong>Great question.</strong> Setting <em>y = x²</em> equal to <em>y = 4 − x²</em> finds where the curves cross — those are your integration bounds.
-
-                    <AnimatePresence>
-                      {showLine2 && (
-                        <motion.span
-                          key="line2"
-                          style={{ display: 'block', marginTop: 8 }}
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4 }}
-                        >
-                          Think of it this way: you can&#39;t calculate the area <em>between</em> two curves until you know <em>where they meet</em>. The intersection points give you the limits of your definite integral.
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-
-                    <AnimatePresence>
-                      {showLine3 && (
-                        <motion.span
-                          key="line3"
-                          className="isaac-trap"
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4 }}
-                        >
-                          Common HSC trap: students forget to check which curve is on top.
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
+                    {ISAAC_STREAM.slice(0, streamCount).map((tk, i) => (
+                      <React.Fragment key={i}>
+                        {tk.br && i > 0 && (
+                          i === firstTrapIdx
+                            ? <span style={{ display: 'block', marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(0,0,0,0.06)' }} />
+                            : <span style={{ display: 'block', marginTop: 8 }} />
+                        )}
+                        {tk.f === 'b' ? <strong>{tk.t} </strong>
+                          : tk.f === 'i' ? <em>{tk.t} </em>
+                          : tk.f === 'tr' ? <span style={{ color: '#D97706', fontWeight: 600, fontSize: 12 }}>{tk.t} </span>
+                          : <>{tk.t} </>}
+                      </React.Fragment>
+                    ))}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -2227,7 +2212,6 @@ export default function Home() {
                 {[
                   'Everything in Essential',
                   'AI-powered question explanations',
-                  'Personalised mock exam generator',
                   'Step-by-step AI tutor on any solution',
                 ].map((f) => (
                   <li key={f}>
