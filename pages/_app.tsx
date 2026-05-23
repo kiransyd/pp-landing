@@ -32,7 +32,14 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     posthog.capture('$pageview')
 
     // Track subsequent route changes
-    const handleRouteChange = () => posthog.capture('$pageview')
+    const handleRouteChange = (url: string) => {
+      posthog.capture('$pageview')
+
+      // Meta Pixel: track page views on route change
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'PageView')
+      }
+    }
     router.events.on('routeChangeComplete', handleRouteChange)
     return () => router.events.off('routeChangeComplete', handleRouteChange)
   }, [router.events])

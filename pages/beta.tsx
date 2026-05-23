@@ -95,6 +95,38 @@ export default function BetaPage() {
     } else {
       if (window.Tally) window.Tally.loadEmbeds();
     }
+
+    // Listen for Tally form submissions to fire Meta conversion events
+    const handleTallyMessage = (e: MessageEvent) => {
+      if (e.data?.event !== 'Tally.FormSubmitted') return;
+
+      const eventId = `lead_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+
+      // Get Meta cookies for deduplication
+      const getCookie = (name: string) =>
+        document.cookie.split('; ').find(c => c.startsWith(name + '='))?.split('=')[1] || '';
+
+      // Client-side: fire pixel Lead event with event_id for dedup
+      if ((window as any).fbq) {
+        (window as any).fbq('track', 'Lead', {}, { eventID: eventId });
+      }
+
+      // Server-side: send via Conversions API
+      fetch('/api/meta-capi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_name: 'Lead',
+          event_id: eventId,
+          source_url: window.location.href,
+          fbc: getCookie('_fbc'),
+          fbp: getCookie('_fbp'),
+        }),
+      }).catch(() => {}); // non-blocking
+    };
+
+    window.addEventListener('message', handleTallyMessage);
+    return () => window.removeEventListener('message', handleTallyMessage);
   }, []);
 
   return (
