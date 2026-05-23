@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { event_name, event_id, email, source_url, fbc, fbp } = req.body
 
-  const userData: Record<string, string> = {}
+  const userData: Record<string, string | string[]> = {}
   if (email) userData.em = [hashSHA256(email)]
   if (fbc) userData.fbc = fbc
   if (fbp) userData.fbp = fbp
@@ -56,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     return res.status(200).json(data)
-  } catch (error) {
+  } catch {
     return res.status(500).json({ error: 'Failed to send event to Meta' })
   }
 }

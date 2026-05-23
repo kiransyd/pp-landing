@@ -107,8 +107,9 @@ export default function BetaPage() {
         document.cookie.split('; ').find(c => c.startsWith(name + '='))?.split('=')[1] || '';
 
       // Client-side: fire pixel Lead event with event_id for dedup
-      if ((window as any).fbq) {
-        (window as any).fbq('track', 'Lead', {}, { eventID: eventId });
+      const w = window as unknown as { fbq?: (...args: unknown[]) => void };
+      if (w.fbq) {
+        w.fbq('track', 'Lead', {}, { eventID: eventId });
       }
 
       // Server-side: send via Conversions API
