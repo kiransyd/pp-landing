@@ -1795,6 +1795,7 @@ export default function Home() {
           <ul className="nav-links">
             <li><Link href="#how-it-works">How it works</Link></li>
             <li><Link href="#pricing">Pricing</Link></li>
+            <li><Link href="https://blog.practicepapers.io" target="_blank" rel="noopener noreferrer">Blog</Link></li>
             <motion.li whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}><Link href="/beta" className="btn-nav">Join the beta</Link></motion.li>
           </ul>
           <button className="nav-hamburger" aria-label="Open menu" onClick={() => setMobileNavOpen(o => !o)}>
@@ -1806,6 +1807,7 @@ export default function Home() {
         <nav className={`nav-mobile${mobileNavOpen ? ' open' : ''}`}>
           <Link href="#how-it-works" onClick={() => setMobileNavOpen(false)}>How it works</Link>
           <Link href="#pricing" onClick={() => setMobileNavOpen(false)}>Pricing</Link>
+          <Link href="https://blog.practicepapers.io" target="_blank" rel="noopener noreferrer" onClick={() => setMobileNavOpen(false)}>Blog</Link>
           <Link href="/beta" className="btn-nav" onClick={() => setMobileNavOpen(false)}>Join the beta</Link>
         </nav>
       </motion.nav>
@@ -2531,6 +2533,7 @@ export default function Home() {
             <li><Link href="#how-it-works">How it works</Link></li>
             <li><Link href="#pricing">Pricing</Link></li>
             <li><Link href="/beta">Join beta</Link></li>
+            <li><Link href="https://blog.practicepapers.io" target="_blank" rel="noopener noreferrer">Blog</Link></li>
             <li><Link href="/privacy">Privacy policy</Link></li>
             <li><Link href="/terms">Terms of service</Link></li>
           </ul>
