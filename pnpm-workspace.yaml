@@ -1,0 +1,7 @@
+allowBuilds:
+  '@tailwindcss/oxide': false
+  core-js: false
+  msw: false
+  protobufjs: false
+  sharp: false
+  unrs-resolver: false

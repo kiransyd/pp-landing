@@ -133,8 +133,14 @@ export default function BetaPage() {
   return (
     <>
       <Head>
-        <title>Join the Beta — PracticePapers.io</title>
-        <meta name="description" content="Get free early access to PracticePapers.io. HSC-quality maths questions, worked solutions, and weak area tracking — before everyone else." />
+        <title>Join the Beta | PracticePapers.io</title>
+        <meta name="description" content="Get free early access to PracticePapers.io. HSC-quality maths questions, worked solutions, and weak area tracking before everyone else." />
+        <link rel="canonical" href="https://practicepapers.io/beta" />
+        <meta property="og:title" content="Join the Beta | PracticePapers.io" />
+        <meta property="og:description" content="Get free early access to PracticePapers.io. HSC-quality maths questions, worked solutions, and weak area tracking before everyone else." />
+        <meta property="og:url" content="https://practicepapers.io/beta" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

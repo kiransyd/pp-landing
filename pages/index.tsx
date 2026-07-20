@@ -509,18 +509,42 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>PracticePapers.io — HSC Maths Practice That Actually Works</title>
+        <title>PracticePapers.io: HSC Maths Practice That Actually Works</title>
         <meta name="description" content="Real HSC-style questions, worked solutions, and a tool that learns where you're going wrong. Join the beta free." />
-        <meta property="og:title" content="PracticePapers.io — HSC Maths Practice That Actually Works" />
+        <link rel="canonical" href="https://practicepapers.io/" />
+        <meta property="og:title" content="PracticePapers.io: HSC Maths Practice That Actually Works" />
         <meta property="og:description" content="Band 6 maths students don't study more. They practise differently. Join the beta free." />
+        <meta property="og:url" content="https://practicepapers.io/" />
         <meta property="og:image" content="/og-pp.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="PracticePapers.io — HSC Maths Practice That Actually Works" />
+        <meta name="twitter:title" content="PracticePapers.io: HSC Maths Practice That Actually Works" />
         <meta name="twitter:description" content="Band 6 maths students don't study more. They practise differently. Join the beta free." />
         <meta name="twitter:image" content="/og-pp.png" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "PracticePapers.io",
+          "url": "https://practicepapers.io",
+          "description": "HSC Maths practice platform with worked solutions and AI-powered weak-area tracking.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://practicepapers.io/beta?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "PracticePapers.io",
+          "url": "https://practicepapers.io",
+          "logo": "https://practicepapers.io/og-pp.png",
+          "sameAs": [
+            "https://blog.practicepapers.io"
+          ]
+        }) }} />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -2508,6 +2532,7 @@ export default function Home() {
             <li><Link href="#pricing">Pricing</Link></li>
             <li><Link href="/beta">Join beta</Link></li>
             <li><Link href="/privacy">Privacy policy</Link></li>
+            <li><Link href="/terms">Terms of service</Link></li>
           </ul>
           <span className="footer-copy">© {YEAR} PracticePapers.io</span>
         </div>
