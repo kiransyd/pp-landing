@@ -29,6 +29,18 @@ export default function Document() {
             src="https://www.facebook.com/tr?id=1671127360673666&ev=PageView&noscript=1"
           />
         </noscript>
+        {/* Google Analytics 4 */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q4HZDZWCNB" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-Q4HZDZWCNB');
+            `,
+          }}
+        />
       </Head>
       <body>
         <Main />
