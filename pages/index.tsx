@@ -620,6 +620,46 @@ export default function Home() {
             white-space: nowrap;
           }
           .btn-nav:hover { background: #4338CA; }
+          .nav-courses { position: relative; }
+          .nav-courses-label {
+            font-size: 14px;
+            color: #52525B;
+            cursor: pointer;
+            user-select: none;
+          }
+          .nav-courses:hover .nav-courses-label { color: #09090B; }
+          .nav-courses-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            background: #fff;
+            border: 1px solid #E4E4E7;
+            border-radius: 12px;
+            box-shadow: 0 16px 40px -12px rgba(9,9,11,0.18);
+            list-style: none;
+            padding: 8px;
+            margin: 0;
+            min-width: 160px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s, transform 0.15s;
+          }
+          .nav-courses:hover .nav-courses-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(4px);
+          }
+          .nav-courses-menu li { margin: 0; }
+          .nav-courses-menu a {
+            display: block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #3F3F46;
+            text-decoration: none;
+          }
+          .nav-courses-menu a:hover { background: #F4F4F5; color: #09090B; }
           .nav-hamburger {
             display: none;
             flex-direction: column;
@@ -1795,6 +1835,16 @@ export default function Home() {
           <ul className="nav-links">
             <li><Link href="#how-it-works">How it works</Link></li>
             <li><Link href="#pricing">Pricing</Link></li>
+            <li className="nav-courses">
+              <span className="nav-courses-label">Courses ▾</span>
+              <ul className="nav-courses-menu">
+                <li><Link href="/hsc-maths-standard-2">Standard 2</Link></li>
+                <li><Link href="/hsc-maths-advanced">Advanced</Link></li>
+                <li><Link href="/hsc-maths-extension-1">Extension 1</Link></li>
+                <li><Link href="/hsc-maths-extension-2">Extension 2</Link></li>
+                <li><Link href="/hsc-maths-past-papers">Past Papers</Link></li>
+              </ul>
+            </li>
             <li><Link href="https://blog.practicepapers.io" target="_blank" rel="noopener noreferrer">Blog</Link></li>
             <motion.li whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}><Link href="/beta" className="btn-nav">Join the beta</Link></motion.li>
           </ul>
@@ -1807,6 +1857,11 @@ export default function Home() {
         <nav className={`nav-mobile${mobileNavOpen ? ' open' : ''}`}>
           <Link href="#how-it-works" onClick={() => setMobileNavOpen(false)}>How it works</Link>
           <Link href="#pricing" onClick={() => setMobileNavOpen(false)}>Pricing</Link>
+          <Link href="/hsc-maths-standard-2" onClick={() => setMobileNavOpen(false)}>Standard 2</Link>
+          <Link href="/hsc-maths-advanced" onClick={() => setMobileNavOpen(false)}>Advanced</Link>
+          <Link href="/hsc-maths-extension-1" onClick={() => setMobileNavOpen(false)}>Extension 1</Link>
+          <Link href="/hsc-maths-extension-2" onClick={() => setMobileNavOpen(false)}>Extension 2</Link>
+          <Link href="/hsc-maths-past-papers" onClick={() => setMobileNavOpen(false)}>Past Papers</Link>
           <Link href="https://blog.practicepapers.io" target="_blank" rel="noopener noreferrer" onClick={() => setMobileNavOpen(false)}>Blog</Link>
           <Link href="/beta" className="btn-nav" onClick={() => setMobileNavOpen(false)}>Join the beta</Link>
         </nav>

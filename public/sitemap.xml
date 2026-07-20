@@ -13,6 +13,48 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://practicepapers.io/hsc-maths-standard-2</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://practicepapers.io/hsc-maths-advanced</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://practicepapers.io/hsc-maths-extension-1</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://practicepapers.io/hsc-maths-extension-2</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://practicepapers.io/hsc-maths-past-papers</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://practicepapers.io/privacy</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://practicepapers.io/terms</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://blog.practicepapers.io/</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>daily</changefreq>
