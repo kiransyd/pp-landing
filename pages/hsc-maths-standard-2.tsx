@@ -84,7 +84,7 @@ export default function Page() {
         <p style={{ fontSize: 20, color: '#52525B', maxWidth: 680, margin: '0 0 32px' }}>Master HSC Mathematics Standard 2 with interactive practice, step-by-step worked solutions, weak-areas tracking, and Isaac AI tutor. Free during beta.</p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 56 }}>
           <Link href="/beta" style={{ background: '#6366F1', color: '#fff', padding: '14px 28px', borderRadius: 10, fontWeight: 600, textDecoration: 'none' }}>Start Practising Free</Link>
-          <Link href="/hsc-maths-formula-sheet" style={{ border: '1px solid #D4D4D8', color: '#09090B', padding: '14px 28px', borderRadius: 10, fontWeight: 600, textDecoration: 'none' }}>View Formula Sheet</Link>
+          <Link href="https://blog.practicepapers.io/hsc-maths-formula-sheet/" style={{ border: '1px solid #D4D4D8', color: '#09090B', padding: '14px 28px', borderRadius: 10, fontWeight: 600, textDecoration: 'none' }}>View Formula Sheet</Link>
         </div>
 
         <section style={{ marginBottom: 56 }}>
